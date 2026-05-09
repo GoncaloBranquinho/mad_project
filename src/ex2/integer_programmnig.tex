@@ -1,0 +1,33 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+\begin{document}
+Dada uma partição $\Pi$, considerar a possibilidade de:
+\begin{itemize}[leftmargin=1.5cm]
+	\item todos os retângulos de $\Pi$ terem de ser cobertos;
+	\item apenas um subconjunto $\Pi' \subset \Pi$  tem de ser coberto.
+\end{itemize}
+
+Variáveis de decisão: $v_{i}$ indica se o vértice $i$ tem guarda ou não.
+
+Dados: $m$ é o número de retângulos a cobrir, $n$ o número de vértices e $p_{ij}$ é $1$ se o retângulo $j$ incide no vértice $i$, ou $0$ caso contrário.
+
+Minimizar
+$\displaystyle \sum_{i = 1}^{n} v_{i}$
+
+sujeito a
+
+\(
+\begin{cases}
+	\sum_{i = 1}^{n} v_{i} \times p_{ij} \ge 1, \quad \forall j = 1,2,\dots,m \\
+	v_{i} \in \{0,1\}, \quad \forall i = 1,2,\dots,n                          \\
+\end{cases}
+\)
+\end{document}
+
+
+% xi1 + xi2 + xi3 + xi4 >= 1
+
+
+% a soma de
