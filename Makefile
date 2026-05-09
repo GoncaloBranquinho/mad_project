@@ -1,4 +1,4 @@
-CXX = g++
+CXX = g++ -O3
 CFLAGS =-std=c++23 
 
 INCLUDES := $(shell find . -name '*.cpp')
