@@ -18,34 +18,24 @@ int compute(std::vector<int> solution) {
 }
 
 bool revise(std::unordered_map<int, std::set<int>> &domains, int x, int r,
-            int m) {
+            std::unordered_map<int, std::pair<int, int>> rect_sum, int m) {
   bool change = false;
   auto dom = domains[x];
   for (auto val : dom) {
     int sum = val;
     if (r == -1) {
-      for (int i = 1; i <= rectangles.size(); i++) {
-        if (!domains[i].empty()) {
-          if (i != x)
-            sum += *domains[i].begin();
-        }
-      }
+      sum = rect_sum[r].first;
       if (sum > m) {
         change = true;
         domains[x].erase(val);
+        std::cout << "olaaaaaaaaaaa";
       }
     } else {
-      for (auto v : vertices[r]) {
-        if (x != v && !domains[v].empty()) {
-          sum += *std::prev(domains[v].end());
-        }
-        if (sum >= 1) {
-          break;
-        }
-      }
+      sum += (rect_sum[r].first + (rectangles.size() - rect_sum[r].second));
       if (sum == 0) {
         change = true;
         domains[x].erase(val);
+        std::cout << "olaaaaaaaaaaa";
       }
     }
   }
@@ -54,12 +44,17 @@ bool revise(std::unordered_map<int, std::set<int>> &domains, int x, int r,
 
 bool ac3(std::vector<int> &solution,
          std::unordered_map<int, std::set<int>> &domains,
-         std::set<std::pair<int, int>> aux_constraints, int m) {
+         std::set<std::pair<int, int>> aux_constraints,
+         std::unordered_map<int, std::pair<int, int>> rect_sum, int x, int m) {
   std::set<std::pair<int, int>> constraints = aux_constraints;
+  for (auto r : rectangles[x]) {
+    for (auto v : vertices[r])
+      constraints.insert(std::make_pair(v, r));
+  }
   while (!constraints.empty()) {
     auto [i, c] = *constraints.begin();
     constraints.erase(constraints.begin());
-    if (revise(domains, i, c, m)) {
+    if (revise(domains, i, c, rect_sum, m)) {
       if (domains[i].empty())
         return false;
       for (auto r : rectangles[i]) {
@@ -77,37 +72,42 @@ bool ac3(std::vector<int> &solution,
   return true;
 }
 
-bool consistent(std::vector<int> &solution, int x, int m) {
+bool consistent(std::vector<int> &solution, int x,
+                std::unordered_map<int, std::pair<int, int>> rect_sum, int m) {
   for (auto r : rectangles[x]) {
     bool flag = true;
     int sum = 0;
-    for (auto v : vertices[r]) {
+    /*for (auto v : vertices[r]) {
       if (solution[v] != -1) {
         sum += solution[v];
       } else if (v != x) {
         flag = false;
         break;
       }
-    }
-    if (flag && sum == 0) {
+    }*/
+    sum += rect_sum[r].first;
+    if (rect_sum[r].second == vertices[r].size() && sum == 0) {
       return false;
     }
   }
-  int sum = 0;
-  for (int i = 1; i <= rectangles.size(); i++) {
+  if (rect_sum[-1].first > m) {
+    return false;
+  }
+  /*for (int i = 1; i <= rectangles.size(); i++) {
     if (solution[i] != -1) {
       sum += solution[i];
     }
     if (sum > m) {
       return false;
     }
-  }
+  }*/
   return true;
 }
 
 bool bt(std::vector<int> &solution, std::vector<int> &vars,
         std::unordered_map<int, std::set<int>> &domains,
-        std::set<std::pair<int, int>> constraints, int m) {
+        std::set<std::pair<int, int>> constraints,
+        std::unordered_map<int, std::pair<int, int>> rect_sum, int m) {
   if (vars.empty())
     return true;
   auto next_vars = vars;
@@ -117,15 +117,26 @@ bool bt(std::vector<int> &solution, std::vector<int> &vars,
     std::unordered_map<int, std::set<int>> aux_domains = domains;
     int old_val = solution[x];
     solution[x] = a;
-    if (consistent(solution, x, m)) {
-      if (ac3(solution, aux_domains, constraints, m)) {
-        bool flag = bt(solution, next_vars, aux_domains, constraints, m);
+    for (auto r : rectangles[x]) {
+      rect_sum[r].first += a;
+      rect_sum[r].second += 1;
+    }
+    rect_sum[-1].first += a;
+    if (consistent(solution, x, rect_sum, m)) {
+      if (ac3(solution, aux_domains, constraints, rect_sum, x, m)) {
+        bool flag =
+            bt(solution, next_vars, aux_domains, constraints, rect_sum, m);
         if (flag) {
           return true;
         }
       }
     }
     solution[x] = old_val;
+    for (auto r : rectangles[x]) {
+      rect_sum[r].first -= a;
+      rect_sum[r].second -= 1;
+    }
+    rect_sum[-1].first -= a;
   }
   return false;
 }
@@ -164,19 +175,18 @@ void solve(std::istream &f) {
   }
 
   int l = 0;
-  int r = vertices.size();
+  int r = vertices.size() + 1;
 
   std::unordered_map<int, std::set<int>> domains;
   std::vector<int> solution;
   std::vector<int> vars;
   std::set<std::pair<int, int>> constraints;
+  std::unordered_map<int, std::pair<int, int>> rect_sum;
 
-  for (auto r : vertices) {
-    for (auto v : r.second) {
-      constraints.insert(std::make_pair(v, r.first));
-      constraints.insert(std::make_pair(v, -1));
-    }
+  for (auto v : rectangles) {
+    constraints.insert(std::make_pair(v.first, -1));
   }
+
   solution.push_back(-1);
   for (int i = 1; i <= rectangles.size(); i++) {
     domains[i] = {0, 1};
@@ -184,11 +194,19 @@ void solve(std::istream &f) {
     vars.push_back(i);
   }
 
-  while (l != r) {
+  for (auto r : vertices) {
+    rect_sum[r.first].first = 0;
+    rect_sum[r.first].second = 0;
+  }
+  rect_sum[-1].first = 0;
+
+  while (l < r) {
     int m = l + (r - l) / 2;
     auto aux_solution = solution;
     auto aux_domains = domains;
-    bool flag = bt(aux_solution, vars, aux_domains, constraints, m);
+    auto aux_rect_sum = rect_sum;
+    bool flag =
+        bt(aux_solution, vars, aux_domains, constraints, aux_rect_sum, m);
     if (!flag) {
       l = m + 1;
     } else {
