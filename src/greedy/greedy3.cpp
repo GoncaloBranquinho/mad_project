@@ -165,7 +165,7 @@ void updateRectangleDegrees(const map<int, set<pair<int,int>>>& rectangleBoundVe
     }
 }
 
-void solve(istream &f) {
+void solve(istream &inputFile) {
     map<pair<int, int>, int> vertexOutDegree;
     map<int, set<pair<int, int>>> rectangleBoundVertices;
     map<pair<int, int>, set<int>> rectanglesAtVertex;
@@ -173,18 +173,18 @@ void solve(istream &f) {
     priority_queue<PairRectangleDegree> rectanglePriorityQueue;
     
     int numRectangles;
-    f >> numRectangles;
+    inputFile >> numRectangles;
 
     vector<bool> rectangleCovered(numRectangles + 1);
 
     for (int i = 0; i < numRectangles; i++) {
         int rectangleID;
         int numVertices;
-        f >> rectangleID >> numVertices;
+        inputFile >> rectangleID >> numVertices;
 
         for (int j = 0; j < numVertices; j++) {
             int x, y;
-            f >> x >> y;
+            inputFile >> x >> y;
             auto vertex = make_pair(x, y);
             vertexOutDegree[vertex] += 1;
             rectangleBoundVertices[rectangleID].insert(vertex);
@@ -240,18 +240,18 @@ void solve(istream &f) {
 }
 
 int main(int argc, char *argv[]) {
-    ifstream f(argv[1]);
+    ifstream inputFile(argv[1]);
 
-    if (!f.is_open()) {
+    if (!inputFile.is_open()) {
         return 1;
     }
 
     int numInstances;
-    f >> numInstances;
+    inputFile >> numInstances;
 
     for (int i = 0; i < numInstances; i++) {
-        solve(f);
+        solve(inputFile);
     }
 
-    f.close();
+    inputFile.close();
 }
