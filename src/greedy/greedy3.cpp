@@ -3,8 +3,6 @@
 #include <map>
 #include <queue>
 #include <set>
-#include <unordered_map>
-#include <utility>
 
 using namespace std;
 
@@ -29,25 +27,36 @@ class PairRectangleDegree {
 
 void printAllVerticesOutDegrees(const map<pair<int, int>, int>& vertexOutDegree) {
 
-    cout << "Degree associated to each vertex\n";
+    cout << "\nDegree associated to each vertex (number of rectangles it is in conctact with)\n";
+    cout << "vertexOutDegree = {\n";
+    bool printComma = false;
 
     for (const auto& entry : vertexOutDegree) {
         const auto& vertexCoords = entry.first;
         const auto& vertexDegree = entry.second;
 
-        cout << "vertexOutDegree[(" << vertexCoords.first << ", " << vertexCoords.second << ")] = " << vertexDegree << "\n";
+        if (printComma) {
+            cout << ",\n";
+        } else {
+            printComma = true;
+        }
+
+        cout << "   (" << vertexCoords.first << ", " << vertexCoords.second << "): " << vertexDegree;
     }
+
+    cout << "\n}\n\n";
 }
 
 void printAllRectanglesBoundaryVertices(const map<int, set<pair<int, int>>>& rectangleBoundVertices) {
 
     cout << "\nBoundary vertices associated to each rectangle\n";
+    cout << "rectangleBoundVertices = {\n";
 
     for (const auto& entry : rectangleBoundVertices) {
         const int rectangleID = entry.first;
         const auto& verticesSet = entry.second;
 
-        cout << "vertices[" << rectangleID << "] = {";
+        cout << "   " << rectangleID << ": = {";
         bool printComma = false;
 
         for (const auto& vertex : verticesSet) {
@@ -59,55 +68,79 @@ void printAllRectanglesBoundaryVertices(const map<int, set<pair<int, int>>>& rec
             printComma = true;
         }
 
-        cout << "}\n";
+        cout << "},\n";
     }
+
+    cout << "}\n\n";
 }
 
 void printAllRectanglesAtVertices(const map<pair<int, int>, set<int>>& rectanglesAtVertex) {
 
     cout << "\nRectangles which each vertex is in contact with\n";
+    cout << "rectanglesAtVertex = {\n";
 
     for (const auto& entry : rectanglesAtVertex) {
         const auto& vertexCoords = entry.first;
         const auto& rectanglesIDsSet = entry.second;
 
-        cout << "rectangles[(" << vertexCoords.first << ", " << vertexCoords.second << ")] = {";
+        cout << "   (" << vertexCoords.first << ", " << vertexCoords.second << "): {";
         bool printComma = false;
 
         for (const auto& rectangleID : rectanglesIDsSet) {
             if (printComma) {
                 cout << ", ";
+            } else {
+                printComma = true;
             }
 
             cout << rectangleID;
-            printComma = true;
         }  
 
-        cout << "}\n";
+        cout << "},\n";
     }
+
+    cout << "}\n\n";
 }
 
 void printAllRectanglesDegrees(const map<int, int>& rectangleDegree) {
 
     cout << "\nDegree associated to each rectangle (sum of the degrees of the vertices it SHARES i.e. ≠ 1)\n";
-    
-    for (const auto& entry : rectangleDegree) {
-        cout << "rectangleDegree[" << entry.first << "] = " << entry.second << "\n";
-    }
+    cout << "rectangleDegree = {\n";
+    bool printComma = false;
 
+    for (const auto& entry : rectangleDegree) {
+        if (printComma) {
+            cout << ",\n";
+        } else {
+            printComma = true;
+        }
+
+        cout << "   " << entry.first << ": " << entry.second ;
+    }
+    
+    cout << "\n}\n\n";
 }
 
 void printRectanglePriorityQueue(priority_queue<PairRectangleDegree> rectanglePriorityQueue) {
     
     cout << "\nPQ - Degree associated to each rectangle (sum of the degrees of the vertices it SHARES i.e. ≠ 1)\n";
-    
+    cout << "rectanglePriorityQueue = {\n";
+    bool printComma = false;
+
     while (!rectanglePriorityQueue.empty()) {
         auto pairRectangleDegree = rectanglePriorityQueue.top();
         rectanglePriorityQueue.pop();
-        cout << "(" << pairRectangleDegree.rectangleID << ", " << pairRectangleDegree.rectangleDegree << ")\n";
+
+        if (printComma) {
+            cout << ",\n";
+        } else {
+            printComma = true;
+        }
+
+        cout << "   (" << pairRectangleDegree.rectangleID << ", " << pairRectangleDegree.rectangleDegree << ")";
     }
 
-    cout << "\n";
+    cout << "\n}\n\n";
 }
 
 pair<int, int> bestVertexOfRectangle(int rectangleID, const map<int, set<pair<int, int>>>& rectangleBoundVertices, const map<pair<int, int>, int>& vertexOutDegree) {
@@ -119,12 +152,13 @@ pair<int, int> bestVertexOfRectangle(int rectangleID, const map<int, set<pair<in
 
     for (const auto& vertex : rectangleBoundVertices.at(rectangleID)) {
 
-        if (printComma) {
-            // cout << ", ";
-        }
+        // if (printComma) {
+        //     cout << ", ";
+        // } else {
+        //     printComma = true;
+        // }
 
         // cout << "((" << vertex.first << ", " << vertex.second << "), " << vertexOutDegree[vertex] << ")";
-        printComma = true;
 
         if (vertexOutDegree.at(vertex) > bestVertexDegree) {
             bestVertexDegree = vertexOutDegree.at(vertex);
@@ -194,11 +228,11 @@ void solve(istream &inputFile) {
 
     updateRectangleDegrees(rectangleBoundVertices, rectangleCovered, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
     
-    // printAllVerticesOutDegrees(vertexOutDegree);
-    // printAllRectanglesBoundaryVertices(rectangleBoundVertices);
-    // printAllRectanglesAtVertices(rectanglesAtVertex);
-    // printAllRectanglesDegrees(rectangleDegree);
-    // printRectanglePriorityQueue(rectanglePriorityQueue);
+    printAllVerticesOutDegrees(vertexOutDegree);
+    printAllRectanglesBoundaryVertices(rectangleBoundVertices);
+    printAllRectanglesAtVertices(rectanglesAtVertex);
+    printAllRectanglesDegrees(rectangleDegree);
+    printRectanglePriorityQueue(rectanglePriorityQueue);
 
     int uncoveredRectangles = numRectangles;
     int numGuardsPlaced = 0;
