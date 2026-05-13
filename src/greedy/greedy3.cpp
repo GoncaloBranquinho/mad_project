@@ -228,11 +228,11 @@ void solve(istream &inputFile) {
 
     updateRectangleDegrees(rectangleBoundVertices, rectangleCovered, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
     
-    printAllVerticesOutDegrees(vertexOutDegree);
-    printAllRectanglesBoundaryVertices(rectangleBoundVertices);
-    printAllRectanglesAtVertices(rectanglesAtVertex);
-    printAllRectanglesDegrees(rectangleDegree);
-    printRectanglePriorityQueue(rectanglePriorityQueue);
+    // printAllVerticesOutDegrees(vertexOutDegree);
+    // printAllRectanglesBoundaryVertices(rectangleBoundVertices);
+    // printAllRectanglesAtVertices(rectanglesAtVertex);
+    // printAllRectanglesDegrees(rectangleDegree);
+    // printRectanglePriorityQueue(rectanglePriorityQueue);
 
     int uncoveredRectangles = numRectangles;
     int numGuardsPlaced = 0;
