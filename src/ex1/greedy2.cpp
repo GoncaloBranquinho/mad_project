@@ -77,7 +77,7 @@ struct ComparePoints {
                   const std::pair<int, int> &y) const {
     if (Points[x].size() != Points[y].size())
       return Points[x].size() > Points[y].size();
-    return x > y;
+    return x < y;
   }
 };
 
