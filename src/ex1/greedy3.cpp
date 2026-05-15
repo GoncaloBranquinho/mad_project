@@ -234,11 +234,11 @@ void solve(istream &inputFile) {
     // printAllRectanglesDegrees(rectangleDegree);
     // printRectanglePriorityQueue(rectanglePriorityQueue);
 
-    int uncoveredRectangles = numRectangles;
+    int coveredRectangles = 0;
     int numGuardsPlaced = 0;
     // int iterations = 0;
 
-    while (uncoveredRectangles > 0) {
+    while (coveredRectangles != numRectangles) {
         // iterations++;
         auto pairRectangleDegree = rectanglePriorityQueue.top();
         rectanglePriorityQueue.pop();
@@ -249,14 +249,16 @@ void solve(istream &inputFile) {
             // Find its best vertex (highest outDegree of all)
             auto bestVertex = bestVertexOfRectangle(currRectangleID, rectangleBoundVertices, vertexOutDegree);
 
-            // Set surrounding rectangles as covered and Update remaining vertices' outDegree
+            // Set surrounding uncovered rectangles as covered and update remaining vertices' outDegree
             for (auto rectangleID : rectanglesAtVertex[bestVertex]) {
-                rectangleCovered[rectangleID] = true;
-                uncoveredRectangles--;
-                // cout << "Setting " << rectangleID << " as covered\n";
-                
-                for (auto vertex: rectangleBoundVertices[rectangleID]) {
-                    vertexOutDegree[vertex] -= 1;
+                if (!rectangleCovered[rectangleID]) {
+                    rectangleCovered[rectangleID] = true;
+                    coveredRectangles++;
+                    // cout << "Setting " << rectangleID << " as covered\n";
+
+                    for (auto vertex: rectangleBoundVertices[rectangleID]) {
+                        vertexOutDegree[vertex] -= 1;
+                    }   
                 }
             }
 
