@@ -1,1 +1,0 @@
-g++ -O3 -std=c++23 "greedy3.cpp" -o "greedy3" && time ./"greedy3" "../../PartsRectangulares/$1" ${2:+$2} && rm "greedy3"
