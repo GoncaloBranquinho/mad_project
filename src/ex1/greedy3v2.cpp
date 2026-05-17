@@ -344,12 +344,6 @@ void solve(istream &inputFile, int percentageToCover) {
 
     initializeRectanglesDegreesAndPQ(rectangleBoundVertices, rectanglesAtVertex, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
 
-    // printAllVerticesOutDegrees(vertexOutDegree);
-    // printAllRectanglesBoundaryVertices(rectangleBoundVertices);
-    // printAllRectanglesAtVertices(rectanglesAtVertex);
-    // printAllRectanglesDegrees(rectangleDegree);
-    // printRectanglePriorityQueue(rectanglePriorityQueue);
-
     int coveredRectangles = 0;
     int numGuardsPlaced = 0;
 
@@ -358,7 +352,6 @@ void solve(istream &inputFile, int percentageToCover) {
         int currRectangleID = pairRectangleDegree.rectangleID;
 
         if (!rectangleCovered.at(currRectangleID)) {            
-            // printAllRectanglesDegrees(rectangleDegree);
 
             // 0. Given the "most isolated" rectangle of the uncovered ones
             // 1. Find its best vertex (highest outDegree of all)
@@ -382,7 +375,6 @@ void solve(istream &inputFile, int percentageToCover) {
                 }
             }
 
-
             // 3. Only consider the rectangles whose degree is affected (are bound to the vertices whose degree was decremented)
             set<int> rectanglesToUpdate;
             calculateWhichRectanglesToUpdate(rectanglesToUpdate, rectanglesCoveredByVertex, rectangleBoundVertices, rectanglesAtVertex, rectangleCovered);
@@ -399,7 +391,6 @@ void solve(istream &inputFile, int percentageToCover) {
         }
     }
 
-    // printAllRectanglesDegrees(rectangleDegree);
     cout << "Total number of guards: " << numGuardsPlaced << "\n";
 }
 
