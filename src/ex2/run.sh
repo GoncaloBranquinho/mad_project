@@ -1,1 +1,1 @@
-./build/main "../../PartsRectangulares/$1"
+./build/main "../../PartsRectangulares/$1" $2

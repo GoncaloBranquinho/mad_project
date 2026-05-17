@@ -8,6 +8,10 @@
 #include <memory>
 #include <stdexcept>
 #include <utility>
+#include <numeric>
+#include <random>
+#include <algorithm>
+
 
 #include "ortools/linear_solver/linear_solver.h"
 
@@ -116,24 +120,67 @@ void printVerticesToIds(map<VertexCoords, int>& vertexToId) {
     cout << "\n}\n";
 }
 
-void solve(istream &inputFile) {
+void printAllRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs) {
+
+    cout << "Randomly chosen subset of rectangles of the partition: {";
+
+    bool printComma = false;
+    for (const auto& rectangleID : randomlyChosenRectangleIDs) {
+        
+        if (printComma) {
+            cout << ", ";
+        } else {
+            printComma = true;
+        }
+
+        cout << rectangleID;
+    }
+
+    cout << "}\n";
+}
+
+void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, int numRectanglesToBeCovered, int numRectangles) {
+    vector<int> rectangleIDs(numRectangles);
+    iota(rectangleIDs.begin(), rectangleIDs.end(), 1);
+    shuffle(rectangleIDs.begin(), rectangleIDs.end(), mt19937(random_device{}()));
+    randomlyChosenRectangleIDs.insert(rectangleIDs.begin(), rectangleIDs.begin() + numRectanglesToBeCovered);
+}
+
+
+void solve(istream &inputFile, int percentageToCover) {
+    set<int> randomlyChosenRectangleIDs;
     set<VertexCoords> verticesSet;
     map<int, set<VertexCoords>> rectangleBoundVertices;
     
     int numRectangles;
     inputFile >> numRectangles;
+    
+    int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
+    cout << "Considering " << numRectanglesToBeCovered << " / " << numRectangles << " of the partition's rectangles to be covered\n";
+    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
+
+    if (numRectanglesToBeCovered == numRectangles) {
+        cout << "All rectangles of the partition included\n";
+    } else {
+        printAllRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
+    }
 
     for (int i = 0; i < numRectangles; i++) {
         int rectangleID;
         int numVertices;
         inputFile >> rectangleID >> numVertices;
 
+        bool rectangleIsInPartitionSubset = randomlyChosenRectangleIDs.contains(rectangleID);
+
         for (int j = 0; j < numVertices; j++) {
             int x, y;
             inputFile >> x >> y;
-            auto vertex = VertexCoords(x, y);
-            verticesSet.insert(vertex);
-            rectangleBoundVertices[rectangleID].insert(vertex);
+
+            if (rectangleIsInPartitionSubset) {
+                auto vertex = VertexCoords(x, y);
+                verticesSet.insert(vertex);
+                rectangleBoundVertices[rectangleID].insert(vertex);
+            }
         }
     }
 
@@ -170,16 +217,14 @@ void solve(istream &inputFile) {
         x[i] = solver->MakeIntVar(0.0, 1.0, "x_" + to_string(i));
     }
 
-    // Constraints (number of constraints = number of rectanles)
-    int currentConstraint = 1;
-    
+    // Constraints (number of constraints = number of rectanles)    
     for (const auto& entry : rectangleBoundVertices) {
         int rectangleID = entry.first;
         const auto& verticesSet = entry.second;
 
         MPConstraint* const c = solver->MakeRowConstraint(1.0, inf);
-        // cout << "c" << currentConstraint << ": ";
-        // bool printPlusSign = false;
+        // cout << "contraint_rect" << rectangleID << ": ";
+        bool printPlusSign = false;
 
         for (const auto& vertex : verticesSet) {
             int vertexID = vertexToId.at(vertex);
@@ -195,7 +240,6 @@ void solve(istream &inputFile) {
         }
 
         // cout << " ≥ 1\n";
-        currentConstraint++;
     }
 
     // Objective function definition
@@ -219,7 +263,7 @@ void solve(istream &inputFile) {
                 // cout << "Guard placed at: (" << vertex.x << ", " << vertex.y << ")\n";
             }
         }
-        cout << "Total number of guards: " << numGuardsPlaced << "\n";
+        cout << "Optimal solution found: " << numGuardsPlaced << "\n";
     } else {
         cout << "Solution found is not optimal.";
     } 
@@ -227,17 +271,35 @@ void solve(istream &inputFile) {
 
 
 int main(int argc, char *argv[]) {
+
+    if (argc < 2) {
+        cout << "Insufficient arguments\n";
+        return 1;
+    }
+
     ifstream inputFile(argv[1]);
 
     if (!inputFile.is_open()) {
+        cout << "Unable to open file " << argv[1] << "\n";
         return 1;
+    }
+
+    int percentageToCover = 100;
+
+    if (argc >= 3) {
+        percentageToCover = stoi(argv[2]);
+
+        if (percentageToCover < 0 || percentageToCover > 100) {
+            cout << "Invalid percentage\n";
+            return 1;
+        }
     }
 
     int numInstances;
     inputFile >> numInstances;
 
     for (int i = 0; i < numInstances; i++) {
-        solve(inputFile);
+        solve(inputFile, percentageToCover);
     }
 
     inputFile.close();
