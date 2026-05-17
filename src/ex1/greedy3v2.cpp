@@ -284,11 +284,10 @@ void initializeRectanglesDegreesAndPQ(map<int, set<pair<int,int>>>& rectangleBou
 }
 
 void updateNecessaryRectanglesDegreesAndPQ(const set<int>& rectanglesToUpdate, const set<int>& rectanglesCoveredByVertex, map<int, set<int>>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
-
     if (rectanglesToUpdate.size() != 0) {
         for (const auto& rectangleIDCoveredByVertex : rectanglesCoveredByVertex) {
             for (const auto& rectangleID : rectanglesToUpdate) {
-                if (rectangleDegree.contains(rectangleIDCoveredByVertex)) {
+                if (rectangleDegree.contains(rectangleID)) {
                     rectangleDegree[rectangleID].erase(rectangleIDCoveredByVertex);
                 }
             }
@@ -299,7 +298,6 @@ void updateNecessaryRectanglesDegreesAndPQ(const set<int>& rectanglesToUpdate, c
         }
     }
 }
-
 
 void solve(istream &inputFile, int percentageToCover) {
     set<int> randomlyChosenRectangleIDs;
@@ -359,8 +357,7 @@ void solve(istream &inputFile, int percentageToCover) {
         auto pairRectangleDegree = rectanglePriorityQueue.top(); rectanglePriorityQueue.pop();
         int currRectangleID = pairRectangleDegree.rectangleID;
 
-        if (!rectangleCovered.at(currRectangleID)) {
-
+        if (!rectangleCovered.at(currRectangleID)) {            
             // printAllRectanglesDegrees(rectangleDegree);
 
             // 0. Given the "most isolated" rectangle of the uncovered ones
@@ -368,24 +365,27 @@ void solve(istream &inputFile, int percentageToCover) {
             auto bestVertex = bestVertexOfRectangle(currRectangleID, rectangleBoundVertices, vertexOutDegree);
 
             // 2. Set surrounding uncovered rectangles as covered and update remaining vertices' outDegree
+            set<int> rectanglesCoveredByVertex;
+
             for (auto rectangleID : rectanglesAtVertex.at(bestVertex)) {
                 if (!rectangleCovered.at(rectangleID)) {
                     rectangleCovered.at(rectangleID) = true;
+                    rectanglesCoveredByVertex.insert(rectangleID);
                     coveredRectangles++;
 
                     for (auto vertex: rectangleBoundVertices.at(rectangleID)) {
                         vertexOutDegree.at(vertex) -= 1;
-                    }   
+                    }
+
+                    // Optional for output
+                    rectangleDegree[rectangleID].clear();
                 }
             }
 
-            // 3. Only consider the rectangles whose degree is affected (are bound to the vertices whose degree was decremented)
-            set<int> rectanglesCoveredByVertex = rectanglesAtVertex.at(bestVertex);
-            // printAllRectanglesCoveredByCurrentBestVertex(rectanglesCoveredByVertex);
 
+            // 3. Only consider the rectangles whose degree is affected (are bound to the vertices whose degree was decremented)
             set<int> rectanglesToUpdate;
             calculateWhichRectanglesToUpdate(rectanglesToUpdate, rectanglesCoveredByVertex, rectangleBoundVertices, rectanglesAtVertex, rectangleCovered);
-
             // printAllRectanglesToUpdate(rectanglesToUpdate);
 
             
@@ -399,6 +399,7 @@ void solve(istream &inputFile, int percentageToCover) {
         }
     }
 
+    // printAllRectanglesDegrees(rectangleDegree);
     cout << "Total number of guards: " << numGuardsPlaced << "\n";
 }
 
