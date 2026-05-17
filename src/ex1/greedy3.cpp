@@ -165,37 +165,6 @@ void printAllRectanglesChosenFromPartition(const set<int>& randomlyChosenRectang
     cout << "}\n";
 }
 
-void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<int>& rectanglesCoveredByVertex, const map<int, set<pair<int, int>>>& rectangleBoundVertices, const map<pair<int, int>, set<int>>& rectanglesAtVertex, const vector<bool>& rectangleCovered) {
-    for (auto rectangleID: rectanglesCoveredByVertex) {
-        for (auto vertex: rectangleBoundVertices.at(rectangleID)) {
-            for (auto rectID : rectanglesAtVertex.at(vertex)) {
-                if (!rectangleCovered.at(rectID)) {
-                    rectanglesToUpdate.insert(rectID);
-                }
-            }
-        }   
-    }
-}
-
-void printAllRectanglesCoveredByCurrentBestVertex(const set<int>& rectanglesCoveredByVertex) {
-    
-    cout << "Rectangles to covered by vertex: {";
-
-    bool printComma = false;
-    
-    for (auto rectangleID : rectanglesCoveredByVertex) {
-        if (printComma) {
-            cout << ", ";
-        } else {
-            printComma = true;
-        }
-        
-        cout << rectangleID;
-    }
-    
-    cout << "}\n";
-}
-
 void printAllRectanglesToUpdate(set<int>& rectanglesToUpdate) {
     
     cout << "Rectangles to Update: {";
@@ -251,6 +220,16 @@ pair<int, int> bestVertexOfRectangle(int rectangleID, const map<int, set<pair<in
     return bestVertex;
 }
 
+void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<pair<int,int>>& affectedVertices, const map<pair<int, int>, set<int>>& rectanglesAtVertex, const vector<bool>& rectangleCovered) {
+    for (auto vertex: affectedVertices) {
+        for (auto rectangleID : rectanglesAtVertex.at(vertex)) {
+            if (!rectangleCovered.at(rectangleID)) {
+                rectanglesToUpdate.insert(rectangleID);
+            }
+        }
+    }
+}
+
 void initializeRectanglesDegreesAndPQ(map<int, set<pair<int,int>>>& rectangleBoundVertices, const map<pair<int,int>, int>& vertexOutDegree, map<int, int>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
     
     for (const auto& entry : rectangleBoundVertices) {
@@ -273,7 +252,7 @@ void initializeRectanglesDegreesAndPQ(map<int, set<pair<int,int>>>& rectangleBou
     }
 }
 
-void updateNecessaryRectanglesDegreesAndPq(const set<int>& rectanglesToUpdate, const map<int, set<pair<int,int>>>& rectangleBoundVertices, const map<pair<int,int>, int>& vertexOutDegree, map<int, int>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
+void updateNecessaryRectanglesDegreesAndPQ(const set<int>& rectanglesToUpdate, const map<int, set<pair<int,int>>>& rectangleBoundVertices, const map<pair<int,int>, int>& vertexOutDegree, map<int, int>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
 
     if (rectanglesToUpdate.size() != 0) {
         for (int rectangleID : rectanglesToUpdate) {
@@ -359,7 +338,10 @@ void solve(istream &inputFile, int percentageToCover) {
             // 1. Find its best vertex (highest outDegree of all)
             auto bestVertex = bestVertexOfRectangle(currRectangleID, rectangleBoundVertices, vertexOutDegree);
 
+
             // 2. Set surrounding uncovered rectangles as covered and update remaining vertices' outDegree
+            set<pair<int,int>> affectedVertices;
+
             for (auto rectangleID : rectanglesAtVertex.at(bestVertex)) {
                 if (!rectangleCovered.at(rectangleID)) {
                     rectangleCovered.at(rectangleID) = true;
@@ -367,22 +349,20 @@ void solve(istream &inputFile, int percentageToCover) {
 
                     for (auto vertex: rectangleBoundVertices.at(rectangleID)) {
                         vertexOutDegree.at(vertex) -= 1;
+                        affectedVertices.insert(vertex);                   
                     }   
                 }
             }
 
+            
             // 3. Only consider the rectangles whose degree is affected (are bound to the vertices whose degree was decremented)
-            set<int> rectanglesCoveredByVertex = rectanglesAtVertex.at(bestVertex);
-            // printAllRectanglesCoveredByCurrentBestVertex(rectanglesCoveredByVertex);
-
             set<int> rectanglesToUpdate;
-            calculateWhichRectanglesToUpdate(rectanglesToUpdate, rectanglesCoveredByVertex, rectangleBoundVertices, rectanglesAtVertex, rectangleCovered);
-
+            calculateWhichRectanglesToUpdate(rectanglesToUpdate, affectedVertices, rectanglesAtVertex, rectangleCovered);
             // printAllRectanglesToUpdate(rectanglesToUpdate);
 
             
             // 4. Update remaining necessary uncovered rectangle's degrees
-            updateNecessaryRectanglesDegreesAndPq(rectanglesToUpdate, rectangleBoundVertices, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
+            updateNecessaryRectanglesDegreesAndPQ(rectanglesToUpdate, rectangleBoundVertices, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
             
 
             // 5. Officially place a guard in that vertex
@@ -391,7 +371,8 @@ void solve(istream &inputFile, int percentageToCover) {
         }
     }
 
-    cout << "Total number of guards: " << numGuardsPlaced << "\n";
+    // cout << "Total number of guards: " << numGuardsPlaced << "\n";
+    cout << numGuardsPlaced << "\n";
 }
 
 int main(int argc, char *argv[]) {
