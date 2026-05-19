@@ -20,7 +20,7 @@ void solve(istream &inputFile, int percentageToCover) {
     inputFile >> numRectangles;
     
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
-    print("\tConsidering {}% coverage of the partition's rectangles ({} / {})\n", percentageToCover, numRectanglesToBeCovered, numRectangles);
+    printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
     chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
     
     if (numRectanglesToBeCovered != numRectangles) {
@@ -109,7 +109,7 @@ void solve(istream &inputFile, int percentageToCover) {
         } else {
             print("Solution found is FEASIBLE → ");
         }
-        print("Minimum number of guards required: {}\n", minNumGuardsRequired);
+        printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
     } else {
         print("No solution found\n");
     } 
@@ -131,27 +131,13 @@ int main(int argc, char *argv[]) {
 
     int numInstances;
     inputFile >> numInstances;
-    print("\nTotal instances to consider: {}\n\n", numInstances);
+    printNumInstancesToConsider(numInstances);
 
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
-        float percentageToCover = 100.0;
-        print("Instance {}:\n", currentInstance);
-        print("\tPercentage (%) of the partition to cover (rounded, invalid inputs default to 100%): ");
+        printCurrentInstanceNumber(currentInstance);
+        printPercentageToCoverInputMessage();
 
-        string input;
-        getline(cin ,input);
-
-        if (!input.empty() && input.back() == '%') {
-            input.pop_back();
-        }
-
-        try {
-            float percentageToCoverInput = stof(input);
-            percentageToCover = round(percentageToCover * 10.0) / 10.0;
-            if (0.0 <= percentageToCoverInput && percentageToCoverInput <= 100.0) {
-                percentageToCover = percentageToCoverInput;
-            }
-        } catch (...) {}
+        float percentageToCover = getInputPercentageIfValidOrDefault100();
 
         solve(inputFile, percentageToCover);
         print("\n");

@@ -31,6 +31,12 @@ class Vertex {
 };
 
 // shared by more than one .cpp file
+void printNumInstancesToConsider(int numInstances);
+void printCurrentInstanceNumber(int currentInstance);
+void printPercentageOfRectanglesInConsideration(float percentageToCover, int numRectanglesToBeCovered, int numRectangles);
+void printPercentageToCoverInputMessage();
+float getInputPercentageIfValidOrDefault100();
+void printMinimumNumberOfGuardsRequired(int minNumGuardsRequired);
 void printAllVerticesOutDegrees(const map<Vertex, int>& vertexOutDegree);
 void printAllRectanglesBoundaryVertices(const map<int, set<Vertex>>& rectangleBoundaryVertices);
 void printAllRectanglesAtVertices(const map<Vertex, set<int>>& rectanglesAtVertex);

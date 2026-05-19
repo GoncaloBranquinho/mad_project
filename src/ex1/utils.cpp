@@ -7,6 +7,43 @@
 #include <algorithm>
 
 // shared by more than one .cpp file
+void printNumInstancesToConsider(int numInstances) {
+    print("\nTotal instances to consider: {}\n\n", numInstances);
+}
+
+void printCurrentInstanceNumber(int currentInstance) {
+    print("Instance {}:\n", currentInstance);
+}
+
+void printPercentageOfRectanglesInConsideration(float percentageToCover, int numRectanglesToBeCovered, int numRectangles) {
+    print("\tConsidering {}% coverage of the partition's rectangles ({} / {})\n", percentageToCover, numRectanglesToBeCovered, numRectangles);
+}
+
+void printPercentageToCoverInputMessage() {
+    print("\tPercentage (%) of the partition to cover (rounded, invalid inputs default to 100%): ");
+}
+
+float getInputPercentageIfValidOrDefault100() {
+        string input;
+        getline(cin ,input);
+
+        if (!input.empty() && input.back() == '%') {
+            input.pop_back();
+        }
+
+        try {
+            float percentageToCoverInput = stof(input);
+            if (0.0 <= percentageToCoverInput && percentageToCoverInput <= 100.0) {
+                return percentageToCoverInput;
+            }
+        } catch (...) {}
+        return 100.0;
+}
+
+void printMinimumNumberOfGuardsRequired(int minNumGuardsRequired) {
+    print("\tMinimum number of guards required: {}", minNumGuardsRequired);
+}
+
 void printAllVerticesOutDegrees(const map<Vertex, int>& vertexOutDegree) {
     print("\n\tDegree associated to each vertex (number of rectangles it is in conctact with)\n");
     print("\tvertexOutDegree = {{\n");
