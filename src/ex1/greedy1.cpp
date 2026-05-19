@@ -1,174 +1,134 @@
+#include "utils.h"
+
 #include <fstream>
 #include <iostream>
-#include <map>
-#include <queue>
-#include <set>
-#include <vector>
-#include <unordered_map>
-#include <utility>
-#include <numeric>
-#include <random>
-#include <algorithm>
 
 using namespace std;
 
-class Vertex {
+class VertexWithOutDegree {
     public:
-    int x;
-    int y;
+    Vertex vertex;
     int outdegree;
 
-    Vertex(int x, int y, int outdegree) {
-        this->x = x;
-        this->y = y;
+    VertexWithOutDegree(int x, int y, int outdegree) {
+        this->vertex = Vertex(x, y);
         this->outdegree = outdegree;
     }
 
-    bool operator<(const Vertex &v) const {
-    if (this->outdegree == v.outdegree) {
-      if (this->x == v.x) {
-        return this->y > v.y;
-      }
-      return this->x < v.x;
+    bool operator<(const VertexWithOutDegree &other) const {
+        if (this->outdegree == other.outdegree) {
+            if (this->vertex.x == other.vertex.x) {
+                return this->vertex.y > other.vertex.y;
+            }
+            return this->vertex.x < other.vertex.x;
+        }
+        return this->outdegree < other.outdegree;
     }
-    return this->outdegree < v.outdegree;
-  }
 };
 
-void printAllRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs) {
-
-    cout << "Randomly chosen subset of rectangles of the partition: {";
-
-    bool printComma = false;
-    for (const auto& rectangleID : randomlyChosenRectangleIDs) {
-        
-        if (printComma) {
-            cout << ", ";
-        } else {
-            printComma = true;
-        }
-
-        cout << rectangleID;
-    }
-
-    cout << "}\n";
-}
-
-void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, int numRectanglesToBeCovered, int numRectangles) {
-    vector<int> rectangleIDs(numRectangles);
-    iota(rectangleIDs.begin(), rectangleIDs.end(), 1);
-    shuffle(rectangleIDs.begin(), rectangleIDs.end(), mt19937(random_device{}()));
-    randomlyChosenRectangleIDs.insert(rectangleIDs.begin(), rectangleIDs.begin() + numRectanglesToBeCovered);
-}
-
-
-void solve(istream &f, int percentageToCover) {
+void solve(istream &inputFile, float percentageToCover) {
     set<int> randomlyChosenRectangleIDs;
-    map<pair<int, int>, int> outdegrees;
-    map<pair<int, int>, int> curr_outdegree;
-    unordered_map<int, set<pair<int, int>>> vertices;
-    map<pair<int, int>, set<int>> rectangles;
-    priority_queue<Vertex> queue;
+    map<Vertex, int> vertexOutDegree;
+    map<Vertex, int> currOutDegree;
+    map<Vertex, set<int>> rectanglesAtVertex;
+    map<int, set<Vertex>> rectangleBoundaryVertices;
+    priority_queue<VertexWithOutDegree> queue;
 
-    int n;
-    f >> n;
+    int numRectangles;
+    inputFile >> numRectangles;
 
-    int numRectanglesToBeCovered = lround(n * percentageToCover / 100.0);
-    cout << "Considering " << numRectanglesToBeCovered << " / " << n << " of the partition's rectangles to be covered\n";
-    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, n);
+    int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
+    print("\tConsidering {}% coverage of the partition's rectangles ({} / {})\n", percentageToCover, numRectanglesToBeCovered, numRectangles);
+    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
     
-    if (numRectanglesToBeCovered == n) {
-        cout << "All rectangles of the partition included\n";
-    } else {
-        printAllRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
+    if (numRectanglesToBeCovered != numRectangles) {
+        printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
     }
 
-    for (int i = 0; i < n; i++) {
-        int id;
-        int m;
-        f >> id >> m;
+    processInput(inputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
 
-        bool rectangleIsInPartitionSubset = randomlyChosenRectangleIDs.contains(id);
-
-        for (int j = 0; j < m; j++) {
-            int x, y;
-            f >> x >> y;
-
-            if (rectangleIsInPartitionSubset) {
-                auto p = make_pair(x, y);
-                outdegrees[p] += 1;
-                vertices[id].insert(p);
-                rectangles[p].insert(id);
-            }
-        }
+    for (const auto& vertex : vertexOutDegree) {
+        auto vertexCoords = vertex.first;
+        int outDegree = vertex.second;
+        int x = vertexCoords.x;
+        int y = vertexCoords.y;
+        currOutDegree[vertexCoords] = outDegree;
+        queue.push(VertexWithOutDegree(x, y, outDegree));
     }
 
-    for (auto v : outdegrees) {
-        int x = v.first.first;
-        int y = v.first.second;
-        curr_outdegree[v.first] = v.second;
-        queue.push(Vertex(x, y, v.second));
-    }
+    int minNumGuardsRequired = 0;
 
-  int sol = 0;
     while (!queue.empty()) {
-        auto v = queue.top(); queue.pop();
-        auto v_pair = make_pair(v.x, v.y);
+        const auto vertexWithOutDegree = queue.top(); queue.pop();
+        const auto& vertexCoords = vertexWithOutDegree.vertex;
+        int outDegree = vertexWithOutDegree.outdegree;
 
-        if (curr_outdegree[v_pair] != v.outdegree)
-            continue;
-        sol += 1;
+        if (currOutDegree[vertexCoords] == outDegree) { 
+            minNumGuardsRequired++;
 
-        for (auto r : rectangles[v_pair]) {
-            vertices[r].erase({v.x, v.y});
-            for (auto other_v : vertices[r]) {
-                int x = other_v.first;
-                int y = other_v.second;
-                auto p = make_pair(x, y);
-                outdegrees[p] -= 1;
-                rectangles[p].erase(r);
-                curr_outdegree[p] = outdegrees[p];
-                if (outdegrees[p] > 0)
-                    queue.push(Vertex(x, y, outdegrees[p]));
+            for (const auto& rectangleID : rectanglesAtVertex[vertexCoords]) {
+                rectangleBoundaryVertices[rectangleID].erase(vertexCoords);
+
+                for (const auto& otherVertex : rectangleBoundaryVertices[rectangleID]) {
+                    int x = otherVertex.x;
+                    int y = otherVertex.y;
+
+                    auto otherVertexCoords = Vertex(x, y);
+                    vertexOutDegree[otherVertexCoords] -= 1;
+                    rectanglesAtVertex[otherVertexCoords].erase(rectangleID);
+                    currOutDegree[otherVertexCoords] = vertexOutDegree[otherVertexCoords];
+
+                    if (vertexOutDegree[otherVertexCoords] > 0) {
+                        queue.push(VertexWithOutDegree(x, y, vertexOutDegree[otherVertexCoords]));
+                    }
+                }
             }
         }
     }
-
-    cout << "Total number of guards: " << sol << "\n";
+    print("\tMinimum number of guards required: {}\n", minNumGuardsRequired);
 }
 
 
 int main(int argc, char *argv[]) {
-
     if (argc < 2) {
-        cout << "Insufficient arguments\n";
+        print("Insufficient arguments\n");
         return 1;
     }
 
-    ifstream f(argv[1]);
+    ifstream inputFile(argv[1]);
 
-    if (!f.is_open()) {
-        cout << "Unable to open file " << argv[1] << "\n";
+    if (!inputFile.is_open()) {
+        print("Unable to open file {}\n", argv[1]);
         return 1;
-    }
-
-    int percentageToCover = 100;
-
-    if (argc >= 3) {
-        percentageToCover = stoi(argv[2]);
-
-        if (percentageToCover < 0 || percentageToCover > 100) {
-            cout << "Invalid percentage\n";
-            return 1;
-        }
     }
 
     int numInstances;
-    f >> numInstances;
+    inputFile >> numInstances;
+    print("\nTotal instances to consider: {}\n\n", numInstances);
 
-    for (int i = 0; i < numInstances; i++) {
-        solve(f, percentageToCover);
+    for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
+        float percentageToCover = 100.0;
+        print("Instance {}:\n", currentInstance);
+        print("\tPercentage (%) of the partition to cover (rounded, invalid inputs default to 100%): ");
+
+        string input;
+        getline(cin ,input);
+
+        if (!input.empty() && input.back() == '%') {
+            input.pop_back();
+        }
+
+        try {
+            float percentageToCoverInput = stof(input);
+            percentageToCover = round(percentageToCover * 10.0) / 10.0;
+            if (0.0 <= percentageToCoverInput && percentageToCoverInput <= 100.0) {
+                percentageToCover = percentageToCoverInput;
+            }
+        } catch (...) {}
+
+        solve(inputFile, percentageToCover);
+        print("\n");
     }
 
-    f.close();
+    inputFile.close();
 }
