@@ -115,7 +115,7 @@ void printAllRectanglesAtVertices(const map<Vertex, set<int>>& rectanglesAtVerte
 }
 
 void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs) {
-    print("\tPress 'y' to show the {} randomly chosen rectangles: ", randomlyChosenRectangleIDs.size());
+    print("\tType 'y' to show the {} randomly chosen rectangles: ", randomlyChosenRectangleIDs.size());
 
     string input;
     getline(cin ,input);
@@ -155,7 +155,7 @@ void printAllRectanglesCoveredByCurrentBestVertex(const set<int>& rectanglesCove
     print("}}\n");
 }
 
-void printAllRectanglesToUpdate(set<int>& rectanglesToUpdate) {  
+void printAllRectanglesToUpdate(const set<int>& rectanglesToUpdate) {  
     print("\n\tRectangles to Update: {{");
     bool printComma = false;
     
@@ -276,7 +276,7 @@ void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree) {
 }
 
 // or-tools-solver.cpp exclusive
-void printVerticesSet(set<Vertex>& verticesSet) {
+void printVerticesSet(const set<Vertex>& verticesSet) {
     print("\n\tSet of all vertices in the partition ordered acoording to Vertex' comparator\n");
     print("\tverticesSet = {{");
     bool printComma = false;
@@ -293,7 +293,7 @@ void printVerticesSet(set<Vertex>& verticesSet) {
     print("\n\t}}\n\n");
 }
 
-void printIDsToVertices(map<int, Vertex>& idToVertex) {
+void printIDsToVertices(const map<int, Vertex>& idToVertex) {
     print("\n\tVertex associated to each ID (all vertices / ids of the partition included)\n");
     print("\tidToVertex = {{");
     bool printComma = false;
@@ -313,7 +313,7 @@ void printIDsToVertices(map<int, Vertex>& idToVertex) {
     print("\n\t}}\n\n");
 }
 
-void printVerticesToIds(map<Vertex, int>& vertexToId) {
+void printVerticesToIDs(const map<Vertex, int>& vertexToId) {
     print("\n\tID associated to each vertex (all vertices / ids of the partition included)\n");
     print("\tvertexToId = {{");
     bool printComma = false;
@@ -377,3 +377,215 @@ void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream
         }
     }
 }
+
+void printAndOrSaveToFileIDsMappingToVertices(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex) {
+    string currentLine = ("\n\tVertex Mapping: (ID associated to each vertex (all vertices/IDs of the considered partition included))\n");
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+
+    for (const auto& entry : idToVertex) {
+        const auto& vertexID = entry.first;
+        const auto& vertex = entry.second;
+
+        currentLine = "\t\t" + to_string(vertexID) + " → (" + to_string(vertex.x) + ", " + to_string(vertex.y) + ")\n";
+        if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+        if (printToOutput) { print("{}", currentLine); }
+    }
+
+    currentLine = "\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+}
+
+void printAndOrSaveToFileModelObjective(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex) {
+    string currentLine = "\t\tMINIMIZE: (We want the least number of guards possible watching the whole partition, i.e. ∑x[i] for all i ∈ [1, " + to_string(idToVertex.size()) +  "])\n\t\t\t";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+    bool printPlusSign = false;
+
+    for (const auto& entry : idToVertex) {
+        int vertexID = entry.first;
+        currentLine = "";
+
+        if (printPlusSign) {
+            currentLine = " + ";
+        } else {
+            printPlusSign = true;
+        }
+
+        currentLine += "x[" + to_string(vertexID) + "]";
+        if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+        if (printToOutput) { print("{}", currentLine); }
+    }
+    currentLine = "\n\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+}
+
+void printAndOrSaveToFileModelSubjectTo(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexToId) {
+    string currentLine = "\t\tSUBJECT TO: (Every rectangle must be watched, therefore needs at least one guard in one of its boundary vertices)\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+
+    for (const auto& entry : rectangleBoundaryVertices) {
+        const auto& rectangleID = entry.first;
+        const auto& verticesSet = entry.second;
+
+        currentLine = "\t\t\tRectangle " + to_string(rectangleID) + ": ";
+        if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+        if (printToOutput) { print("{}", currentLine); }
+        bool printPlusSign = false;
+
+        for (const auto& vertex : verticesSet) {
+            currentLine = "";
+            if (printPlusSign) {
+                currentLine = " + ";
+            } else {
+                printPlusSign = true;
+            }
+
+            currentLine += "x[" + to_string(vertexToId.at(vertex)) + "]";
+            if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+            if (printToOutput) { print("{}", currentLine); }
+        }
+        currentLine = " ≥ 1\n";
+        if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+        if (printToOutput) {print("{}", currentLine); }
+    }
+
+    currentLine = "1\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << "\n"; }
+    if (printToOutput) { print("\n"); }
+}
+
+void printAndOrSaveToFileModelBounds(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex) {
+    string currentLine = "\t\tBOUNDS: (There can be one guard per vertex at most (vertex either has, 1, or doesn't, 0), i.e. 0 ≤ x[i] ≤ 1 for all i ∈ [1, " +  to_string(idToVertex.size()) + "])\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+
+    for (const auto& entry : idToVertex) {
+        const auto& vertexID = entry.first;
+
+        currentLine = "\t\t\t0 ≤ x[" + to_string(vertexID) + "] ≤ 1\n";
+        if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+        if (printToOutput) { print("{}", currentLine); }
+    }
+    currentLine = "\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+}
+
+void printAndOrSaveToFileModel(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices) {
+    printAndOrSaveToFileIDsMappingToVertices(outputModelSolutionFile, printToOutput, idToVertex);
+    string currentLine = "\tMODEL: (i corresponds to the id of a vertex and x[i] to whether that vertex has a guard placed or not)\n\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+    printAndOrSaveToFileModelObjective(outputModelSolutionFile, printToOutput, idToVertex);
+    printAndOrSaveToFileModelSubjectTo(outputModelSolutionFile, printToOutput, rectangleBoundaryVertices, vertexToId);
+    printAndOrSaveToFileModelBounds(outputModelSolutionFile, printToOutput, idToVertex);
+}
+
+void printAndOrSaveToFileSolutionFound(ofstream* outputModelSolutionFile, bool printToOutput, const set<int>& chosenVerticesIDs, const map<int, Vertex>& idToVertex) {
+    string currentLine = "\tSOLUTION FOUND:" + to_string(chosenVerticesIDs.size()) + "\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+
+    for (const auto& vertexID : chosenVerticesIDs) {
+        const auto& vertex = idToVertex.at(vertexID);
+
+        currentLine = "\t\tPlaced a guard in vertex: " + to_string(vertexID) + " → (" + to_string(vertex.x) + ", " + to_string(vertex.y) + ")\n";
+        if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+        if (printToOutput) { print("{}", currentLine); }
+    }
+    currentLine = "\n";
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
+}
+
+string printAndGetOptionFromModelAndSolutionFoundMenu() {
+    print("\tRegarding the current instance's model and solution, please select an option:\n");
+    print("\t  - Type '1' to view it\n");
+    print("\t  - Type '2' to save it to a file\n");
+    print("\t  - Type '3' for both of the above\n");
+    print("\t  - Any other input for none of the above\n");
+    print("\tOption: ");
+
+    string selectedOption;
+
+    getline(cin, selectedOption);
+    
+    return selectedOption;
+}
+
+void getModelsAndSolutionsFileName(string& fileName) {
+    if (fileName != "") {
+        return;
+    }
+    
+    bool viableFileName = false;
+    print("\n\tWARNING - The file you choose will have contents appended to it for all instances you decide to save\n");
+
+    while (!viableFileName) {
+        print("\tType output file name (\'Enter\' to default to models_and_solutions.txt, \'c\' to cancel): ");
+        getline(cin, fileName);
+
+        if (fileName == "c") {
+            print("\tFile saving canceled\n");
+            fileName = "";
+            break;
+        }
+
+        if (fileName.empty()) {
+            fileName = "models_and_solutions.txt";
+        }
+
+        if (filesystem::exists(fileName)) {
+            print("\tThe file \'{}\' already exists and all contents will be appended to it!\n", fileName);
+            print("\tType 'y' to proceed (any other input for no): ");
+
+            string proceed;
+            getline(cin, proceed);
+
+            if (proceed == "y") {
+                viableFileName = true;
+            }
+
+        } else {
+            viableFileName = true;
+        }
+    }
+}
+
+void printAndOrSaveToFileModelAndSolutionFound(int& currentInstance, string& fileName, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices, const set<int>& chosenVerticesIDs) {
+    string selectedOption = printAndGetOptionFromModelAndSolutionFoundMenu();
+    bool printToOutput = false;
+    ofstream* outputModelSolutionFile = nullptr;
+    ofstream outputModelSolutionFileStream;
+
+    if (selectedOption == "1" || selectedOption == "3") {
+        printToOutput = true;
+    }
+
+    if (selectedOption == "2" || selectedOption == "3") {
+        if (fileName == "") {
+            getModelsAndSolutionsFileName(fileName);
+        }
+
+        // may cancel operation
+        if (fileName != "") {
+            print("\tAppending current instance's model and solution to {}...\n", fileName);
+            outputModelSolutionFileStream.open(fileName, ios::app);
+            outputModelSolutionFile = &outputModelSolutionFileStream;
+            *outputModelSolutionFile << "Instance " << currentInstance << ":\n";
+        }
+    }
+
+    if (selectedOption != "1" && selectedOption != "3") {
+        print("\n");
+    }
+
+    printAndOrSaveToFileModel(outputModelSolutionFile, printToOutput, idToVertex, vertexToId, rectangleBoundaryVertices);
+    printAndOrSaveToFileSolutionFound(outputModelSolutionFile, printToOutput, chosenVerticesIDs, idToVertex);
+    outputModelSolutionFileStream.close();
+}
+

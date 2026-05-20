@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 using namespace std;
 
@@ -38,7 +39,6 @@ class Vertex {
     }   
 };
 
-
 // shared by more than one .cpp file
 void printNumInstancesToConsider(int numInstances);
 void printCurrentInstanceNumber(int currentInstance);
@@ -51,7 +51,7 @@ void printAllRectanglesBoundaryVertices(const map<int, set<Vertex>>& rectangleBo
 void printAllRectanglesAtVertices(const map<Vertex, set<int>>& rectanglesAtVertex);
 void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs);
 void printAllRectanglesCoveredByCurrentBestVertex(const set<int>& rectanglesCoveredByVertex);
-void printAllRectanglesToUpdate(set<int>& rectanglesToUpdate);
+void printAllRectanglesToUpdate(const set<int>& rectanglesToUpdate);
 void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, int& numRectanglesToBeCovered, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex);
 void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, int numRectanglesToBeCovered, int numRectangles);
 
@@ -62,7 +62,15 @@ void printAllRectanglesDegrees(const map<int, int>& rectangleDegree);
 void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree);
 
 // or-tools-solver.cpp exclusive
-void printVerticesSet(set<Vertex>& verticesSet);
-void printIDsToVertices(map<int, Vertex>& idToVertex);
-void printVerticesToIds(map<Vertex, int>& vertexToId);
+void printVerticesSet(const set<Vertex>& verticesSet);
+void printIDsToVertices(const map<int, Vertex>& idToVertex);
+void printVerticesToIDs(const map<Vertex, int>& vertexToId);
 void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet);
+void printAndOrSaveToFileIDsMappingToVertices(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex);
+void printAndOrSaveToFileModelObjective(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex);
+void printAndOrSaveToFileModelSubjectTo(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexToId);
+void printAndOrSaveToFileModelBounds(ofstream* outputModelSolutionFile, bool printToOutput,const map<int, Vertex>& idToVertex);
+void printAndOrSaveToFileModel(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices);
+string printAndGetOptionFromModelAndSolutionFoundMenu();
+void getModelsAndSolutionsFileName(string& fileName);
+void printAndOrSaveToFileModelAndSolutionFound(int& currentInstance, string& fileName, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices, const set<int>& chosenVerticesIDs);

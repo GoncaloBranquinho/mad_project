@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <cmath>
+#include <unordered_set>
 
 using namespace operations_research;
 
@@ -20,6 +21,8 @@ void solveAllInstances(istream &inputFile) {
         return;
     }
 
+    string modelsAndSolutionsFileName;
+    
     outputFile << numInstances << "\n";
 
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
@@ -32,6 +35,7 @@ void solveAllInstances(istream &inputFile) {
         map<int, set<Vertex>> rectangleBoundaryVertices;
         map<int, Vertex> idToVertex;
         map<Vertex, int> vertexToId;
+        set<int> chosenVerticesIDs;
         
         processCurrentInstanceInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, rectangleBoundaryVertices, verticesSet);
         
@@ -57,7 +61,8 @@ void solveAllInstances(istream &inputFile) {
         vector<MPVariable*> x(totalVertices + 1);
 
         for (int i = 1; i <= totalVertices; i++) {
-            x[i] = solver->MakeIntVar(0.0, 1.0, "x_" + to_string(i));
+            string varName = "x[" + to_string(i) + "]";
+            x[i] = solver->MakeIntVar(0.0, 1.0, varName);
         }
 
         // Constraints (number of constraints = number of rectangles)    
@@ -66,25 +71,13 @@ void solveAllInstances(istream &inputFile) {
             const auto& verticesSet = entry.second;
 
             MPConstraint* const c = solver->MakeRowConstraint(1.0, inf);
-            // cout << "contraint_rect" << rectangleID << ": ";
             bool printPlusSign = false;
 
             for (const auto& vertex : verticesSet) {
                 const auto& vertexID = vertexToId.at(vertex);
                 c->SetCoefficient(x[vertexID], 1);
-
-                // if (printPlusSign) {
-                //     cout << " + ";
-                // } else {
-                //     printPlusSign = true;
-                // }
-
-                // cout << "x[" << vertexID << "]";
             }
-
-            // cout << " ≥ 1\n";
         }
-
         int solutionLowerbound = ceil(numRectanglesToBeCovered / 3.0);
         MPConstraint* const c = solver->MakeRowConstraint(solutionLowerbound - 1, inf);
         for (int i = 1; i <= verticesSet.size(); i++) {
@@ -104,14 +97,10 @@ void solveAllInstances(istream &inputFile) {
         int minNumGuardsRequired = 0;
 
         if (result_status == MPSolver::OPTIMAL || result_status == MPSolver::FEASIBLE) {
-            // cout << "x[" << i << "] = " << x[i]->solution_value() << "\n";
-
-
             for (int i = 1; i <= totalVertices; i++) {
                 if (x[i]->solution_value() > 0.0) {
-                    const auto& vertex = idToVertex.at(i);
+                    chosenVerticesIDs.insert(i);
                     minNumGuardsRequired++;
-                    // cout << "Guard placed at: (" << vertex.x << ", " << vertex.y << ")\n";
                 }
             }
 
@@ -124,8 +113,10 @@ void solveAllInstances(istream &inputFile) {
         } else {
             print("\tNo solution found\n");
         }
-        print("\n");
-    }
+
+        printAndOrSaveToFileModelAndSolutionFound(currentInstance, modelsAndSolutionsFileName, idToVertex, vertexToId, rectangleBoundaryVertices, chosenVerticesIDs);
+    }   
+    outputFile.close();
 }
 
 int main(int argc, char *argv[]) {
