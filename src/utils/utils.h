@@ -65,4 +65,4 @@ void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree);
 void printVerticesSet(set<Vertex>& verticesSet);
 void printIDsToVertices(map<int, Vertex>& idToVertex);
 void printVerticesToIds(map<Vertex, int>& vertexToId);
-void processInputAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet);
+void processInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, const float percentageToCover, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet);

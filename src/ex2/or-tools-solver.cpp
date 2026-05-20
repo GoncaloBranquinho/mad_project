@@ -16,18 +16,8 @@ void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
     map<Vertex, int> vertexToId;
     
     int numRectangles;
-    inputFile >> numRectangles;
-    
+    processInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, percentageToCover, rectangleBoundaryVertices, verticesSet);
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
-    printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
-    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
-    outputFile << numRectanglesToBeCovered << "\n";
-
-    if (numRectanglesToBeCovered != numRectangles) {
-        printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
-    }
-
-    processInputAndAddToOutputFile(inputFile, outputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, verticesSet);
     
     int id = 1;
     for (const auto& vertexCoords : verticesSet) {

@@ -331,7 +331,19 @@ void printVerticesToIds(map<Vertex, int>& vertexToId) {
     print("\n\t}}\n");
 }
 
-void processInputAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
+void processInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, const float percentageToCover, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
+    inputFile >> numRectangles;
+
+    int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
+    printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
+    outputFile << numRectanglesToBeCovered << "\n";    
+    
+    set<int> randomlyChosenRectangleIDs;
+    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
+    if (numRectanglesToBeCovered != numRectangles) {
+        printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
+    } 
+    
     for (int i = 0; i < numRectangles; i++) {
         int rectangleID;
         int numVertices;
