@@ -90,6 +90,8 @@ void solveAllInstances(istream &inputFile) {
 
         printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
     }
+    
+    outputFile.close();
 }
 
 
