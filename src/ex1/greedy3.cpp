@@ -101,7 +101,6 @@ void updateNecessaryRectanglesDegreesAndPQ(const set<int>& rectanglesToUpdate, c
 
 
 void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
-    set<int> randomlyChosenRectangleIDs;
     map<Vertex, int> vertexOutDegree;
     map<int, set<Vertex>> rectangleBoundaryVertices;
     map<Vertex, set<int>> rectanglesAtVertex;
@@ -109,23 +108,13 @@ void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
     priority_queue<PairRectangleDegree> rectanglePriorityQueue;
     
     int numRectangles;
-    inputFile >> numRectangles;
-
+    processInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, percentageToCover, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
-    printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
-    outputFile << numRectanglesToBeCovered << "\n";    
-    
-    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
-    if (numRectanglesToBeCovered != numRectangles) {
-        printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
-    }
-
-    vector<bool> rectangleCovered(numRectangles + 1);
-    processInputAndAddToOutputFile(inputFile, outputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
     initializeRectanglesDegreesAndPQ(rectangleBoundaryVertices, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
     
     int coveredRectangles = 0;
     int minNumGuardsRequired = 0;
+    vector<bool> rectangleCovered(numRectangles + 1);
 
     while (coveredRectangles != numRectanglesToBeCovered) {
         auto pairRectangleDegree = rectanglePriorityQueue.top(); rectanglePriorityQueue.pop();

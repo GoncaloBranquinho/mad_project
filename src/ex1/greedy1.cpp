@@ -24,24 +24,14 @@ class VertexWithOutDegree {
 void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
     set<int> randomlyChosenRectangleIDs;
     map<Vertex, int> vertexOutDegree;
-    map<Vertex, int> currOutDegree;
-    map<Vertex, set<int>> rectanglesAtVertex;
     map<int, set<Vertex>> rectangleBoundaryVertices;
-    priority_queue<VertexWithOutDegree> queue;
+    map<Vertex, set<int>> rectanglesAtVertex;
+    map<Vertex, int> currOutDegree;
+    priority_queue<VertexWithOutDegree> vertexPriorityQueue;
 
     int numRectangles;
-    inputFile >> numRectangles;
-
+    processInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, percentageToCover, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
-    printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
-    outputFile << numRectanglesToBeCovered << "\n";
-
-    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
-    if (numRectanglesToBeCovered != numRectangles) {
-        printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
-    }
-
-    processInputAndAddToOutputFile(inputFile, outputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
 
     for (const auto& vertex : vertexOutDegree) {
         auto vertexCoords = vertex.first;
@@ -49,13 +39,13 @@ void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
         int x = vertexCoords.x;
         int y = vertexCoords.y;
         currOutDegree[vertexCoords] = outDegree;
-        queue.push(VertexWithOutDegree(x, y, outDegree));
+        vertexPriorityQueue.push(VertexWithOutDegree(x, y, outDegree));
     }
 
     int minNumGuardsRequired = 0;
 
-    while (!queue.empty()) {
-        const auto vertexWithOutDegree = queue.top(); queue.pop();
+    while (!vertexPriorityQueue.empty()) {
+        const auto vertexWithOutDegree = vertexPriorityQueue.top(); vertexPriorityQueue.pop();
         const auto& vertexCoords = vertexWithOutDegree.vertex;
         int outDegree = vertexWithOutDegree.outdegree;
 
@@ -75,7 +65,7 @@ void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
                     currOutDegree[otherVertexCoords] = vertexOutDegree[otherVertexCoords];
 
                     if (vertexOutDegree[otherVertexCoords] > 0) {
-                        queue.push(VertexWithOutDegree(x, y, vertexOutDegree[otherVertexCoords]));
+                        vertexPriorityQueue.push(VertexWithOutDegree(x, y, vertexOutDegree[otherVertexCoords]));
                     }
                 }
             }
