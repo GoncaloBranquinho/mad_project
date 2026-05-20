@@ -3,8 +3,16 @@
 #include <set>
 #include <map>
 #include <queue>
+#include <print>
+#include <vector>
+#include <random>
+#include <iostream>
+#include <algorithm>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
+
 
 class Vertex {
     public:
@@ -30,6 +38,7 @@ class Vertex {
     }   
 };
 
+
 // shared by more than one .cpp file
 void printNumInstancesToConsider(int numInstances);
 void printCurrentInstanceNumber(int currentInstance);
@@ -43,7 +52,7 @@ void printAllRectanglesAtVertices(const map<Vertex, set<int>>& rectanglesAtVerte
 void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs);
 void printAllRectanglesCoveredByCurrentBestVertex(const set<int>& rectanglesCoveredByVertex);
 void printAllRectanglesToUpdate(set<int>& rectanglesToUpdate);
-void processInput(istream &inputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex);
+void processInputAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex);
 void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, int numRectanglesToBeCovered, int numRectangles);
 
 // greedy3.cpp exclusive
@@ -56,4 +65,4 @@ void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree);
 void printVerticesSet(set<Vertex>& verticesSet);
 void printIDsToVertices(map<int, Vertex>& idToVertex);
 void printVerticesToIds(map<Vertex, int>& vertexToId);
-void processInput(istream &inputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet);
+void processInputAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet);

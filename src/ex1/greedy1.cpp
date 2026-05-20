@@ -1,7 +1,5 @@
 #include "utils.h"
 
-#include <fstream>
-#include <iostream>
 
 class VertexWithOutDegree {
     public:
@@ -24,7 +22,8 @@ class VertexWithOutDegree {
     }
 };
 
-void solve(istream &inputFile, float percentageToCover) {
+
+void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
     set<int> randomlyChosenRectangleIDs;
     map<Vertex, int> vertexOutDegree;
     map<Vertex, int> currOutDegree;
@@ -37,13 +36,14 @@ void solve(istream &inputFile, float percentageToCover) {
 
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
     printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
+    outputFile << numRectanglesToBeCovered << "\n";
+
     chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
-    
     if (numRectanglesToBeCovered != numRectangles) {
         printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
     }
 
-    processInput(inputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
+    processInputAndAddToOutputFile(inputFile, outputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
 
     for (const auto& vertex : vertexOutDegree) {
         auto vertexCoords = vertex.first;
@@ -100,9 +100,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    ofstream outputFile("../../PartsRectangulares/testingFilteredOutput.txt");
+
     int numInstances;
     inputFile >> numInstances;
     printNumInstancesToConsider(numInstances);
+    outputFile << numInstances << "\n";
 
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
         printCurrentInstanceNumber(currentInstance);
@@ -110,7 +113,7 @@ int main(int argc, char *argv[]) {
 
         float percentageToCover = getInputPercentageIfValidOrDefault100();
 
-        solve(inputFile, percentageToCover);
+        solve(inputFile, outputFile, percentageToCover);
         print("\n");
     }
 

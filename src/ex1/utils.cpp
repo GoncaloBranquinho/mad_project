@@ -1,10 +1,5 @@
 #include "utils.h"
 
-#include <print>
-#include <vector>
-#include <random>
-#include <iostream>
-#include <algorithm>
 
 // shared by more than one .cpp file
 void printNumInstancesToConsider(int numInstances) {
@@ -41,7 +36,7 @@ float getInputPercentageIfValidOrDefault100() {
 }
 
 void printMinimumNumberOfGuardsRequired(int minNumGuardsRequired) {
-    print("\tMinimum number of guards required: {}", minNumGuardsRequired);
+    print("\tMinimum number of guards required: {}\n", minNumGuardsRequired);
 }
 
 void printAllVerticesOutDegrees(const map<Vertex, int>& vertexOutDegree) {
@@ -177,7 +172,7 @@ void printAllRectanglesToUpdate(set<int>& rectanglesToUpdate) {
     print("}}\n");
 }
 
-void processInput(istream &inputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex) {
+void processInputAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex) {
     for (int i = 0; i < numRectangles; i++) {
         int rectangleID;
         int numVertices;
@@ -194,6 +189,16 @@ void processInput(istream &inputFile, int numRectangles, const set<int>& randoml
                 vertexOutDegree[vertex] += 1;
                 rectangleBoundaryVertices[rectangleID].insert(vertex);
                 rectanglesAtVertex[vertex].insert(rectangleID);
+
+                if (j == 0) {
+                    outputFile << rectangleID << " " << numVertices;
+                }
+
+                outputFile << " " << x << " " << y;
+
+                if (j == numVertices - 1) {
+                    outputFile << "\n";
+                }
             }
         }
     }
@@ -314,7 +319,7 @@ void printVerticesToIds(map<Vertex, int>& vertexToId) {
     print("\n\t}}\n");
 }
 
-void processInput(istream &inputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
+void processInputAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int numRectangles, const set<int>& randomlyChosenRectangleIDs, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
     for (int i = 0; i < numRectangles; i++) {
         int rectangleID;
         int numVertices;
@@ -330,6 +335,16 @@ void processInput(istream &inputFile, int numRectangles, const set<int>& randoml
                 const auto vertex = Vertex(x, y);
                 verticesSet.insert(vertex);
                 rectangleBoundaryVertices[rectangleID].insert(vertex);
+                
+                if (j == 0) {
+                    outputFile << rectangleID << " " << numVertices;
+                }
+
+                outputFile << " " << x << " " << y;
+
+                if (j == numVertices - 1) {
+                    outputFile << "\n";
+                }
             }
         }
     }

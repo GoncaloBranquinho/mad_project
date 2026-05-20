@@ -1,8 +1,5 @@
 #include "utils.h"
 
-#include <fstream>
-#include <iostream>
-
 class PairRectangleDegree {
     public:
     int rectangleID;
@@ -21,6 +18,7 @@ class PairRectangleDegree {
         return this->rectangleDegree > other.rectangleDegree;
     }
 };
+
 
 void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<Vertex>& affectedVertices, const map<Vertex, set<int>>& rectanglesAtVertex, const vector<bool>& rectangleCovered) {
     for (const auto& vertex: affectedVertices) {
@@ -103,7 +101,7 @@ void updateNecessaryRectanglesDegreesAndPQ(const set<int>& rectanglesToUpdate, c
 }
 
 
-void solve(istream &inputFile, float percentageToCover) {
+void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
     set<int> randomlyChosenRectangleIDs;
     map<Vertex, int> vertexOutDegree;
     map<int, set<Vertex>> rectangleBoundaryVertices;
@@ -116,18 +114,17 @@ void solve(istream &inputFile, float percentageToCover) {
 
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
     printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
-    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
+    outputFile << numRectanglesToBeCovered << "\n";    
     
+    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
     if (numRectanglesToBeCovered != numRectangles) {
         printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
     }
 
-
     vector<bool> rectangleCovered(numRectangles + 1);
-    processInput(inputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
+    processInputAndAddToOutputFile(inputFile, outputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
     initializeRectanglesDegreesAndPQ(rectangleBoundaryVertices, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
     
-
     int coveredRectangles = 0;
     int minNumGuardsRequired = 0;
 
@@ -186,9 +183,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    ofstream outputFile("../../PartsRectangulares/testingFilteredOutput.txt");
+
     int numInstances;
     inputFile >> numInstances;
     printNumInstancesToConsider(numInstances);
+    outputFile << numInstances << "\n";
 
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
         printCurrentInstanceNumber(currentInstance);
@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
 
         float percentageToCover = getInputPercentageIfValidOrDefault100();
 
-        solve(inputFile, percentageToCover);
+        solve(inputFile, outputFile, percentageToCover);
         print("\n");
     }
 

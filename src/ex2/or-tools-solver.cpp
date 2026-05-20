@@ -9,7 +9,7 @@
 
 using namespace operations_research;
 
-void solve(istream &inputFile, int percentageToCover) {
+void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
     set<int> randomlyChosenRectangleIDs;
     set<Vertex> verticesSet;
     map<int, set<Vertex>> rectangleBoundaryVertices;
@@ -22,12 +22,13 @@ void solve(istream &inputFile, int percentageToCover) {
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
     printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
     chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
-    
+    outputFile << numRectanglesToBeCovered << "\n";
+
     if (numRectanglesToBeCovered != numRectangles) {
         printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
     }
 
-    processInput(inputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, verticesSet);
+    processInputAndAddToOutputFile(inputFile, outputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, verticesSet);
 
     int id = 1;
     for (const auto& vertexCoords : verticesSet) {
@@ -129,9 +130,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    ofstream outputFile("../../PartsRectangulares/testingFilteredOutput.txt");
+
     int numInstances;
     inputFile >> numInstances;
     printNumInstancesToConsider(numInstances);
+    outputFile << numInstances << "\n";
 
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
         printCurrentInstanceNumber(currentInstance);
@@ -139,7 +143,7 @@ int main(int argc, char *argv[]) {
 
         float percentageToCover = getInputPercentageIfValidOrDefault100();
 
-        solve(inputFile, percentageToCover);
+        solve(inputFile, outputFile, percentageToCover);
         print("\n");
     }
 
