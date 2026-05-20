@@ -105,9 +105,9 @@ void solve(istream &inputFile, int percentageToCover) {
         }
 
         if (result_status == MPSolver::OPTIMAL) {
-            print("Solution found is OPTIMAL → ");
+            print("Solution found is OPTIMAL\n");
         } else {
-            print("Solution found is FEASIBLE → ");
+            print("Solution found is FEASIBLE\n");
         }
         printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
     } else {
