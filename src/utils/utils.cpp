@@ -290,7 +290,7 @@ void printVerticesSet(set<Vertex>& verticesSet) {
 
         print("\n\t\t({}, {})", vertex.x, vertex.y);
     }
-    print("\n\t}}\n");
+    print("\n\t}}\n\n");
 }
 
 void printIDsToVertices(map<int, Vertex>& idToVertex) {
@@ -310,7 +310,7 @@ void printIDsToVertices(map<int, Vertex>& idToVertex) {
 
         print("\n\t\t{}: ({}, {})", vertexID, vertex.x, vertex.y);
     }
-    print("\n\t}}\n");
+    print("\n\t}}\n\n");
 }
 
 void printVerticesToIds(map<Vertex, int>& vertexToId) {
@@ -330,10 +330,12 @@ void printVerticesToIds(map<Vertex, int>& vertexToId) {
 
         print("\n\t\t({}, {}): {}", vertex.x, vertex.y, vertexID);
     }
-    print("\n\t}}\n");
+    print("\n\t}}\n\n");
 }
 
-void processInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, const float percentageToCover, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
+void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
+    printPercentageToCoverInputMessage();
+    float percentageToCover = getInputPercentageIfValidOrDefault100();
     inputFile >> numRectangles;
 
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);

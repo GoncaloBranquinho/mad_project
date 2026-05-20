@@ -8,108 +8,125 @@
 
 using namespace operations_research;
 
-void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
-    set<int> randomlyChosenRectangleIDs;
-    set<Vertex> verticesSet;
-    map<int, set<Vertex>> rectangleBoundaryVertices;
-    map<int, Vertex> idToVertex;
-    map<Vertex, int> vertexToId;
+void solveAllInstances(istream &inputFile) {
+    int numInstances;
+    inputFile >> numInstances;
+    printNumInstancesToConsider(numInstances);
+
+    ofstream outputFile("../../PartsRectangulares/modified_instance_file.txt");
     
-    int numRectangles;
-    processInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, percentageToCover, rectangleBoundaryVertices, verticesSet);
-    int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
-    
-    int id = 1;
-    for (const auto& vertexCoords : verticesSet) {
-        idToVertex.emplace(id, vertexCoords);
-        vertexToId.emplace(vertexCoords, id);
-        id++;
+    if (!outputFile) {
+        print("Unable to open/create modified_instance_file.txt");
+        return;
     }
 
-// OR-Tools
-    // Declare Solver
-    unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP"));
+    outputFile << numInstances << "\n";
 
-    if (!solver) {
-        throw runtime_error("SCIP solver unavailable.");
-    }
+    for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
+        printCurrentInstanceNumber(currentInstance);
 
-    const double inf = solver->infinity();
-
-    // Decision variables
-    const auto totalVertices = verticesSet.size();
-    vector<MPVariable*> x(totalVertices + 1);
-
-    for (int i = 1; i <= totalVertices; i++) {
-        x[i] = solver->MakeIntVar(0.0, 1.0, "x_" + to_string(i));
-    }
-
-    // Constraints (number of constraints = number of rectangles)    
-    for (const auto& entry : rectangleBoundaryVertices) {
-        const auto& rectangleID = entry.first;
-        const auto& verticesSet = entry.second;
-
-        MPConstraint* const c = solver->MakeRowConstraint(1.0, inf);
-        // cout << "contraint_rect" << rectangleID << ": ";
-        bool printPlusSign = false;
-
-        for (const auto& vertex : verticesSet) {
-            const auto& vertexID = vertexToId.at(vertex);
-            c->SetCoefficient(x[vertexID], 1);
-
-            // if (printPlusSign) {
-            //     cout << " + ";
-            // } else {
-            //     printPlusSign = true;
-            // }
-
-            // cout << "x[" << vertexID << "]";
+        int numRectangles;
+        int numRectanglesToBeCovered;
+        set<int> randomlyChosenRectangleIDs;
+        set<Vertex> verticesSet;
+        map<int, set<Vertex>> rectangleBoundaryVertices;
+        map<int, Vertex> idToVertex;
+        map<Vertex, int> vertexToId;
+        
+        processCurrentInstanceInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, rectangleBoundaryVertices, verticesSet);
+        
+        int id = 1;
+        for (const auto& vertexCoords : verticesSet) {
+            idToVertex.emplace(id, vertexCoords);
+            vertexToId.emplace(vertexCoords, id);
+            id++;
         }
 
-        // cout << " ≥ 1\n";
-    }
+    // OR-Tools
+        // Declare Solver
+        unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP"));
 
-    int solutionLowerbound = ceil(solutionLowerbound / 3.0);
-    MPConstraint* const c = solver->MakeRowConstraint(solutionLowerbound - 1, inf);
-    for (int i = 1; i <= verticesSet.size(); i++) {
-        c->SetCoefficient(x[i], 1);
-    }
+        if (!solver) {
+            throw runtime_error("SCIP solver unavailable.");
+        }
 
-    // Objective function definition
-    MPObjective* const objective = solver->MutableObjective();
-    for (int i = 1; i <= totalVertices; i++) {
-        objective->SetCoefficient(x[i], 1);
-    }
-    objective->SetMinimization();
+        const double inf = solver->infinity();
 
-    // Print result
-    print("\tCalculating solution, please wait...\n\t");
-    const MPSolver::ResultStatus result_status = solver->Solve();
-    int minNumGuardsRequired = 0;
-
-    if (result_status == MPSolver::OPTIMAL || result_status == MPSolver::FEASIBLE) {
-        // cout << "x[" << i << "] = " << x[i]->solution_value() << "\n";
-
+        // Decision variables
+        const auto totalVertices = verticesSet.size();
+        vector<MPVariable*> x(totalVertices + 1);
 
         for (int i = 1; i <= totalVertices; i++) {
-            if (x[i]->solution_value() > 0.0) {
-                const auto& vertex = idToVertex.at(i);
-                minNumGuardsRequired++;
-                // cout << "Guard placed at: (" << vertex.x << ", " << vertex.y << ")\n";
+            x[i] = solver->MakeIntVar(0.0, 1.0, "x_" + to_string(i));
+        }
+
+        // Constraints (number of constraints = number of rectangles)    
+        for (const auto& entry : rectangleBoundaryVertices) {
+            const auto& rectangleID = entry.first;
+            const auto& verticesSet = entry.second;
+
+            MPConstraint* const c = solver->MakeRowConstraint(1.0, inf);
+            // cout << "contraint_rect" << rectangleID << ": ";
+            bool printPlusSign = false;
+
+            for (const auto& vertex : verticesSet) {
+                const auto& vertexID = vertexToId.at(vertex);
+                c->SetCoefficient(x[vertexID], 1);
+
+                // if (printPlusSign) {
+                //     cout << " + ";
+                // } else {
+                //     printPlusSign = true;
+                // }
+
+                // cout << "x[" << vertexID << "]";
             }
+
+            // cout << " ≥ 1\n";
         }
 
-        if (result_status == MPSolver::OPTIMAL) {
-            print("Solution found is OPTIMAL\n");
+        int solutionLowerbound = ceil(numRectanglesToBeCovered / 3.0);
+        MPConstraint* const c = solver->MakeRowConstraint(solutionLowerbound - 1, inf);
+        for (int i = 1; i <= verticesSet.size(); i++) {
+            c->SetCoefficient(x[i], 1);
+        }
+
+        // Objective function definition
+        MPObjective* const objective = solver->MutableObjective();
+        for (int i = 1; i <= totalVertices; i++) {
+            objective->SetCoefficient(x[i], 1);
+        }
+        objective->SetMinimization();
+
+        // Print result
+        print("\tCalculating solution, please wait...\n");
+        const MPSolver::ResultStatus result_status = solver->Solve();
+        int minNumGuardsRequired = 0;
+
+        if (result_status == MPSolver::OPTIMAL || result_status == MPSolver::FEASIBLE) {
+            // cout << "x[" << i << "] = " << x[i]->solution_value() << "\n";
+
+
+            for (int i = 1; i <= totalVertices; i++) {
+                if (x[i]->solution_value() > 0.0) {
+                    const auto& vertex = idToVertex.at(i);
+                    minNumGuardsRequired++;
+                    // cout << "Guard placed at: (" << vertex.x << ", " << vertex.y << ")\n";
+                }
+            }
+
+            if (result_status == MPSolver::OPTIMAL) {
+                print("\tSolution found is OPTIMAL\n");
+            } else {
+                print("\tSolution found is FEASIBLE\n");
+            }
+            printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
         } else {
-            print("Solution found is FEASIBLE\n");
+            print("\tNo solution found\n");
         }
-        printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
-    } else {
-        print("No solution found\n");
-    } 
+        print("\n");
+    }
 }
-
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -124,22 +141,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    ofstream outputFile("../../PartsRectangulares/testingFilteredOutput.txt");
-
-    int numInstances;
-    inputFile >> numInstances;
-    printNumInstancesToConsider(numInstances);
-    outputFile << numInstances << "\n";
-
-    for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
-        printCurrentInstanceNumber(currentInstance);
-        printPercentageToCoverInputMessage();
-
-        float percentageToCover = getInputPercentageIfValidOrDefault100();
-
-        solve(inputFile, outputFile, percentageToCover);
-        print("\n");
-    }
+    solveAllInstances(inputFile);
 
     inputFile.close();
 }
