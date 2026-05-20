@@ -1,5 +1,4 @@
-#include "utils.h"
-
+#include "../utils/utils.h"
 
 class VertexWithOutDegree {
     public:
@@ -21,7 +20,6 @@ class VertexWithOutDegree {
         return this->outdegree < other.outdegree;
     }
 };
-
 
 void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
     set<int> randomlyChosenRectangleIDs;

@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "../utils/utils.h"
 
 class PairRectangleDegree {
     public:
@@ -18,7 +18,6 @@ class PairRectangleDegree {
         return this->rectangleDegree > other.rectangleDegree;
     }
 };
-
 
 void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<Vertex>& affectedVertices, const map<Vertex, set<int>>& rectanglesAtVertex, const vector<bool>& rectangleCovered) {
     for (const auto& vertex: affectedVertices) {

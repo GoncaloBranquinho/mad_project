@@ -20,7 +20,7 @@ include_directories(/opt/homebrew/include)
 link_directories(/opt/homebrew/lib)
 
 # 4. Build
-add_executable(main or-tools-solver.cpp ../ex1/utils.cpp)
+add_executable(main or-tools-solver.cpp ../utils/utils.cpp)
 
 # 5. Link
 target_link_libraries(main 
