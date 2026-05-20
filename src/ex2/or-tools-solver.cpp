@@ -1,11 +1,10 @@
 #include "ortools/linear_solver/linear_solver.h"
-#include "../ex1/utils.h"
+#include "../utils/utils.h"
 
 #include <memory>
 #include <cstdint>
-#include <fstream>
-#include <iostream>
 #include <stdexcept>
+#include <cmath>
 
 using namespace operations_research;
 
@@ -29,14 +28,13 @@ void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
     }
 
     processInputAndAddToOutputFile(inputFile, outputFile, numRectangles, randomlyChosenRectangleIDs, rectangleBoundaryVertices, verticesSet);
-
+    
     int id = 1;
     for (const auto& vertexCoords : verticesSet) {
         idToVertex.emplace(id, vertexCoords);
         vertexToId.emplace(vertexCoords, id);
         id++;
     }
-
 
 // OR-Tools
     // Declare Solver
@@ -79,6 +77,12 @@ void solve(istream &inputFile, ofstream& outputFile, float percentageToCover) {
         }
 
         // cout << " ≥ 1\n";
+    }
+
+    int solutionLowerbound = ceil(solutionLowerbound / 3.0);
+    MPConstraint* const c = solver->MakeRowConstraint(solutionLowerbound - 1, inf);
+    for (int i = 1; i <= verticesSet.size(); i++) {
+        c->SetCoefficient(x[i], 1);
     }
 
     // Objective function definition
