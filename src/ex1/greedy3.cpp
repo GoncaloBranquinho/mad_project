@@ -189,7 +189,6 @@ int main(int argc, char *argv[]) {
     }
 
     solveAllInstances(inputFile);
-    print("\n");
 
     inputFile.close();
 }

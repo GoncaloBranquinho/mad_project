@@ -87,6 +87,7 @@ void solveAllInstances(istream &inputFile) {
                 }
             }
         }
+
         printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
     }
 }
@@ -106,7 +107,6 @@ int main(int argc, char *argv[]) {
     }
 
     solveAllInstances(inputFile);
-    print("\n");
 
     inputFile.close();
 }

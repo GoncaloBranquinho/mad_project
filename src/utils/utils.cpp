@@ -36,7 +36,7 @@ float getInputPercentageIfValidOrDefault100() {
 }
 
 void printMinimumNumberOfGuardsRequired(int minNumGuardsRequired) {
-    print("\tMinimum number of guards required: {}\n", minNumGuardsRequired);
+    print("\tMinimum number of guards required: {}\n\n", minNumGuardsRequired);
 }
 
 void printAllVerticesOutDegrees(const map<Vertex, int>& vertexOutDegree) {
