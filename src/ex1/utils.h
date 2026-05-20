@@ -50,7 +50,7 @@ void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, i
 void printAllRectanglesDegrees(const map<int, int>& rectangleDegree);
 
 // greedy3v2.cpp exclusive
-void printAllRectanglesDegreesV2(const map<int, set<int>>& rectangleDegree);
+void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree);
 
 // or-tools-solver.cpp exclusive
 void printVerticesSet(set<Vertex>& verticesSet);

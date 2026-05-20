@@ -120,20 +120,27 @@ void printAllRectanglesAtVertices(const map<Vertex, set<int>>& rectanglesAtVerte
 }
 
 void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs) {
-    print("\tRandom subset of the partition's rectangles chosen: {{");
-    bool printComma = false;
+    print("\tPress 'y' to show the {} randomly chosen rectangles: ", randomlyChosenRectangleIDs.size());
 
-    for (const auto& rectangleID : randomlyChosenRectangleIDs) {     
-        if (printComma) {
-            print(", ");
-        } else {
-            printComma = true;
+    string input;
+    getline(cin ,input);
+
+    if (input == "y") {
+        print("\tRandom subset of the partition's rectangles chosen: {{");
+        bool printComma = false;
+
+        for (const auto& rectangleID : randomlyChosenRectangleIDs) {     
+            if (printComma) {
+                print(", ");
+            } else {
+                printComma = true;
+            }
+
+            print("{}", rectangleID);
         }
 
-        print("{}", rectangleID);
+        print("}}\n");
     }
-
-    print("}}\n");
 }
 
 void printAllRectanglesCoveredByCurrentBestVertex(const set<int>& rectanglesCoveredByVertex) {    
@@ -222,7 +229,7 @@ void printAllRectanglesDegrees(const map<int, int>& rectangleDegree) {
 }
 
 // greedy3v2.cpp exclusive
-void printAllRectanglesDegreesV2(const map<int, set<int>>& rectangleDegree) {
+void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree) {
     print("\n\tDegree associated to each rectangle (number of different rectangles it is in contact with / shares vertices with)\n");
     print("\trectangleDegree = {{\n");
 
