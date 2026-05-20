@@ -172,10 +172,12 @@ void printAllRectanglesToUpdate(set<int>& rectanglesToUpdate) {
     print("}}\n");
 }
 
-void processInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, const float percentageToCover, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex) {
+void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, int& numRectanglesToBeCovered, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex) {
+    printPercentageToCoverInputMessage();
+    float percentageToCover = getInputPercentageIfValidOrDefault100();
     inputFile >> numRectangles;
 
-    int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
+    numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
     printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
     outputFile << numRectanglesToBeCovered << "\n";    
     

@@ -52,7 +52,7 @@ void printAllRectanglesAtVertices(const map<Vertex, set<int>>& rectanglesAtVerte
 void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs);
 void printAllRectanglesCoveredByCurrentBestVertex(const set<int>& rectanglesCoveredByVertex);
 void printAllRectanglesToUpdate(set<int>& rectanglesToUpdate);
-void processInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, const float percentageToCover, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex);
+void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, int& numRectanglesToBeCovered, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex);
 void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, int numRectanglesToBeCovered, int numRectangles);
 
 // greedy3.cpp exclusive
