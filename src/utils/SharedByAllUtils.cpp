@@ -1,6 +1,6 @@
 #include "SharedByAllUtils.h"
 
-string pathToFolderContainingFile = "../../PartsRectangulares/";
+string pathToFolderContainingFile = "../../inputs/";
 
 void printNumInstancesToConsider(int numInstances) {
     print("\nTotal instances to consider: {}\n\n", numInstances);

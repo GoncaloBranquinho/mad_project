@@ -1,4 +1,5 @@
-printf "Compiling greedy3.cpp:\n"
+printf "Compiling greedy3.cpp, please wait... "
 g++ -O3 -std=c++23 "greedy3.cpp" "../utils/Greedy3NecessaryUtils.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o "greedy3"
-./"greedy3" "../../PartsRectangulares/$1"
+printf "\n"
+./"greedy3" "../../inputs/$1"
 rm "greedy3"
