@@ -1,4 +1,4 @@
-#include "Greedy3ExclusiveUtils.h"
+#include "Greedy3NecessaryUtils.h"
 
 void printAllRectanglesDegrees(const map<int, int>& rectangleDegree) { 
     print("\n\tDegree associated to each rectangle (sum of the degrees of the vertices it SHARES i.e. ≠ 1)\n");

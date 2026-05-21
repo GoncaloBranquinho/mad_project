@@ -1,4 +1,4 @@
-#include "ORToolsSolverExclusiveUtils.h"
+#include "ORToolsSolverNecessaryUtils.h"
 
 void printVerticesSet(const set<Vertex>& verticesSet) {
     print("\n\tSet of all vertices in the partition ordered acoording to Vertex' comparator\n");

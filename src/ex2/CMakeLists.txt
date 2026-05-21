@@ -20,7 +20,7 @@ include_directories(/opt/homebrew/include)
 link_directories(/opt/homebrew/lib)
 
 # 4. Build
-add_executable(main ORToolsSolver.cpp ../utils/ORToolsSolverExclusiveUtils.cpp ../utils/SharedByAllUtils.cpp)
+add_executable(main ORToolsSolver.cpp ../utils/ORToolsSolverNecessaryUtils.cpp ../utils/SharedByAllUtils.cpp)
 
 # 5. Link
 target_link_libraries(main 

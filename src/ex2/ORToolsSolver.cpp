@@ -1,5 +1,5 @@
 #include "ortools/linear_solver/linear_solver.h"
-#include "../utils/ORToolsSolverExclusiveUtils.h"
+#include "../utils/ORToolsSolverNecessaryUtils.h"
 
 #include <memory>
 #include <cstdint>
