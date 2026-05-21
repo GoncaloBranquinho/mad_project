@@ -108,6 +108,7 @@ void printAllRectanglesToUpdate(const set<int>& rectanglesToUpdate) {
     
     print("}}\n");
 }
+
 void processCurrentInstanceInputs(istream &inputFile, int& numRectangles, int& numRectanglesToBeCovered, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex) {
     printPercentageToCoverInputMessage();
     float percentageToCover = getInputPercentageIfValidOrDefault100();
