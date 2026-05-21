@@ -1,4 +1,4 @@
-#include "../utils/utils.h"
+#include "../utils/Greedy3ExclusiveUtils.h"
 
 void solveAllInstances(istream &inputFile) {
     int numInstances;

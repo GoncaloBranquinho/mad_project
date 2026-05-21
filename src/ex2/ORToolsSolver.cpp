@@ -1,5 +1,5 @@
 #include "ortools/linear_solver/linear_solver.h"
-#include "../utils/utils.h"
+#include "../utils/ORToolsSolverExclusiveUtils.h"
 
 #include <memory>
 #include <cstdint>
@@ -22,7 +22,6 @@ void solveAllInstances(istream &inputFile) {
 
         int numRectangles;
         int numRectanglesToBeCovered;
-        set<int> randomlyChosenRectangleIDs;
         set<Vertex> verticesSet;
         map<int, set<Vertex>> rectangleBoundaryVertices;
         map<int, Vertex> idToVertex;

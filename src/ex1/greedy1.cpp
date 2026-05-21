@@ -1,4 +1,4 @@
-#include "../utils/utils.h"
+#include "../utils/SharedByAllGreedysUtils.h"
 
 class VertexWithOutDegree {
     public:
@@ -34,7 +34,6 @@ void solveAllInstances(istream &inputFile) {
 
         int numRectangles;
         int numRectanglesToBeCovered;
-        set<int> randomlyChosenRectangleIDs;
         map<Vertex, int> vertexOutDegree;
         map<int, set<Vertex>> rectangleBoundaryVertices;
         map<Vertex, set<int>> rectanglesAtVertex;

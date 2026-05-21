@@ -1,3 +1,0 @@
-g++ -O3 -std=c++23 "$1.cpp" "../utils/utils.cpp" -o "$1"
-./"$1" "../../PartsRectangulares/$2"
-rm "$1"

@@ -1,4 +1,4 @@
-#include "../utils/utils.h"
+#include "../utils/Greedy3v2ExclusiveUtils.h"
 
 void solveAllInstances(istream &inputFile) {
     int numInstances;
@@ -8,13 +8,11 @@ void solveAllInstances(istream &inputFile) {
     string fileteredPartitionsOutputFileName;
     int numInstancesAddedToOutputFile = 0;
 
-
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
         printCurrentInstanceNumber(currentInstance);
 
         int numRectangles;
         int numRectanglesToBeCovered;
-        set<int> randomlyChosenRectangleIDs;
         map<Vertex, int> vertexOutDegree;
         map<int, set<Vertex>> rectangleBoundaryVertices;
         map<Vertex, set<int>> rectanglesAtVertex;
