@@ -57,12 +57,12 @@ void printVerticesToIDs(const map<Vertex, int>& vertexToId) {
     print("\n\t}}\n\n");
 }
 
-void processCurrentInstanceInputs(istream &inputFile, int& numRectangles, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
+void processCurrentInstanceInputs(istream &inputFile, int& numRectangles, int& numRectanglesToBeCovered, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
     printPercentageToCoverInputMessage();
     float percentageToCover = getInputPercentageIfValidOrDefault100();
     inputFile >> numRectangles;
 
-    int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
+    numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
     printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
     
     set<int> randomlyChosenRectangleIDs;
@@ -111,7 +111,7 @@ void printAndOrSaveToFileIDsMappingToVertices(ofstream* outputModelSolutionFile,
 }
 
 void printAndOrSaveToFileModelObjective(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex) {
-    string currentLine = "\t\tMINIMIZE: (We want the least number of guards possible watching the whole partition, i.e. ∑x[i] for all i ∈ [1, " + to_string(idToVertex.size()) +  "])\n\t\t\t";
+    string currentLine = "\t\tMINIMIZE: (We want the least number of guards possible watching the whole partition, i.e., ∑x[i] for all i ∈ [1, " + to_string(idToVertex.size()) +  "])\n\t\t\t";
     if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
     if (printToOutput) { print("{}", currentLine); }
     bool printPlusSign = false;
@@ -135,7 +135,7 @@ void printAndOrSaveToFileModelObjective(ofstream* outputModelSolutionFile, bool 
     if (printToOutput) { print("{}", currentLine); }
 }
 
-void printAndOrSaveToFileModelSubjectTo(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexToId) {
+void printAndOrSaveToFileModelSubjectTo(ofstream* outputModelSolutionFile, bool printToOutput, int numRectanglesToBeCovered, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexToId) {
     string currentLine = "\t\tSUBJECT TO: (Every rectangle must be watched, therefore needs at least one guard in one of its boundary vertices)\n";
     if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
     if (printToOutput) { print("{}", currentLine); }
@@ -166,9 +166,11 @@ void printAndOrSaveToFileModelSubjectTo(ofstream* outputModelSolutionFile, bool 
         if (printToOutput) {print("{}", currentLine); }
     }
 
-    currentLine = "1\n";
-    if (outputModelSolutionFile) { *outputModelSolutionFile << "\n"; }
-    if (printToOutput) { print("\n"); }
+    int solutionLowerbound = ceil(numRectanglesToBeCovered / 3.0);
+    currentLine = "\t\t\tLOWER BOUND: minNumGuardsRequired ≥ ⌈numRectanglesToCover / 3⌉, i.e., ∑x[i] ≥ " + to_string(solutionLowerbound) + " for all i ∈ [1, " + to_string(vertexToId.size()) +  "]\n\n";
+
+    if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
+    if (printToOutput) { print("{}", currentLine); }
 }
 
 void printAndOrSaveToFileModelBounds(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex) {
@@ -188,18 +190,18 @@ void printAndOrSaveToFileModelBounds(ofstream* outputModelSolutionFile, bool pri
     if (printToOutput) { print("{}", currentLine); }
 }
 
-void printAndOrSaveToFileModel(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices) {
+void printAndOrSaveToFileModel(ofstream* outputModelSolutionFile, bool printToOutput, int numRectanglesToBeCovered, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices) {
     printAndOrSaveToFileIDsMappingToVertices(outputModelSolutionFile, printToOutput, idToVertex);
     string currentLine = "\tMODEL: (i corresponds to the id of a vertex and x[i] to whether that vertex has a guard placed or not)\n\n";
     if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
     if (printToOutput) { print("{}", currentLine); }
     printAndOrSaveToFileModelObjective(outputModelSolutionFile, printToOutput, idToVertex);
-    printAndOrSaveToFileModelSubjectTo(outputModelSolutionFile, printToOutput, rectangleBoundaryVertices, vertexToId);
+    printAndOrSaveToFileModelSubjectTo(outputModelSolutionFile, printToOutput, numRectanglesToBeCovered, rectangleBoundaryVertices, vertexToId);
     printAndOrSaveToFileModelBounds(outputModelSolutionFile, printToOutput, idToVertex);
 }
 
 void printAndOrSaveToFileSolutionFound(ofstream* outputModelSolutionFile, bool printToOutput, const set<int>& chosenVerticesIDs, const map<int, Vertex>& idToVertex) {
-    string currentLine = "\tSOLUTION FOUND:" + to_string(chosenVerticesIDs.size()) + "\n";
+    string currentLine = "\tSOLUTION FOUND: " + to_string(chosenVerticesIDs.size()) + "\n";
     if (outputModelSolutionFile) { *outputModelSolutionFile << currentLine; }
     if (printToOutput) { print("{}", currentLine); }
 
@@ -239,11 +241,14 @@ string printAndGetOptionFromModelAndSolutionFoundMenu(string& fileName) {
     return selectedOption;
 }
 
-void printAndOrSaveToFileModelAndSolutionFound(int& currentInstance, string& fileName, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices, const set<int>& chosenVerticesIDs) {
+void printAndOrSaveToFileModelAndSolutionFound(int& currentInstance, string& fileName, int numRectanglesToBeCovered, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices, const set<int>& chosenVerticesIDs) {
     string selectedOption = printAndGetOptionFromModelAndSolutionFoundMenu(fileName);
     bool printToOutput = false;
     ofstream* outputModelSolutionFile = nullptr;
     ofstream outputModelSolutionFileStream;
+
+    print("\n\n\n\n{}\n\n\n\n", numRectanglesToBeCovered);
+
 
     if (selectedOption == "1" || selectedOption == "3") {
         printToOutput = true;
@@ -262,7 +267,7 @@ void printAndOrSaveToFileModelAndSolutionFound(int& currentInstance, string& fil
         print("\n");
     }
 
-    printAndOrSaveToFileModel(outputModelSolutionFile, printToOutput, idToVertex, vertexToId, rectangleBoundaryVertices);
+    printAndOrSaveToFileModel(outputModelSolutionFile, printToOutput, numRectanglesToBeCovered, idToVertex, vertexToId, rectangleBoundaryVertices);
     printAndOrSaveToFileSolutionFound(outputModelSolutionFile, printToOutput, chosenVerticesIDs, idToVertex);
     outputModelSolutionFileStream.close();
 }

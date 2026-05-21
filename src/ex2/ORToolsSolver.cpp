@@ -28,7 +28,7 @@ void solveAllInstances(istream &inputFile) {
         map<Vertex, int> vertexToId;
         set<int> chosenVerticesIDs;
         
-        processCurrentInstanceInputs(inputFile, numRectangles, rectangleBoundaryVertices, verticesSet);
+        processCurrentInstanceInputs(inputFile, numRectangles, numRectanglesToBeCovered, rectangleBoundaryVertices, verticesSet);
         
         int id = 1;
         for (const auto& vertexCoords : verticesSet) {
@@ -69,6 +69,7 @@ void solveAllInstances(istream &inputFile) {
                 c->SetCoefficient(x[vertexID], 1);
             }
         }
+
         int solutionLowerbound = ceil(numRectanglesToBeCovered / 3.0);
         MPConstraint* const c = solver->MakeRowConstraint(solutionLowerbound - 1, inf);
         for (int i = 1; i <= verticesSet.size(); i++) {
@@ -104,7 +105,8 @@ void solveAllInstances(istream &inputFile) {
         } else {
             print("\tNo solution found\n");
         }
-        printAndOrSaveToFileModelAndSolutionFound(currentInstance, modelsAndSolutionsFileName, idToVertex, vertexToId, rectangleBoundaryVertices, chosenVerticesIDs);
+
+        printAndOrSaveToFileModelAndSolutionFound(currentInstance, modelsAndSolutionsFileName, numRectanglesToBeCovered, idToVertex, vertexToId, rectangleBoundaryVertices, chosenVerticesIDs);
         savePartitionToOutputFile(numInstancesAddedToOutputFile, fileteredPartitionsOutputFileName, rectangleBoundaryVertices);
     }   
     insertAtBegginingNumInstancesAddedToOutputFile(numInstancesAddedToOutputFile, fileteredPartitionsOutputFileName);
