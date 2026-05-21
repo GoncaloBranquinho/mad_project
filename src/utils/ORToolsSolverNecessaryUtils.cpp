@@ -247,9 +247,6 @@ void printAndOrSaveToFileModelAndSolutionFound(int& currentInstance, string& fil
     ofstream* outputModelSolutionFile = nullptr;
     ofstream outputModelSolutionFileStream;
 
-    print("\n\n\n\n{}\n\n\n\n", numRectanglesToBeCovered);
-
-
     if (selectedOption == "1" || selectedOption == "3") {
         printToOutput = true;
     }
