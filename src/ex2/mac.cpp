@@ -63,7 +63,7 @@ bool revise(std::vector<int> &solution,
 bool ac3(std::vector<int> &solution,
          std::unordered_map<int, std::set<int>> &domains,
          std::set<std::pair<int, int>> aux_constraints,
-         std::unordered_map<int, std::pair<int, int>> &rect_sum, int x, int m) {
+         std::unordered_map<int, std::pair<int, int>> &rect_sum, int m) {
   std::set<std::pair<int, int>> constraints = aux_constraints;
   while (!constraints.empty()) {
     auto [i, c] = *constraints.begin();
@@ -127,11 +127,14 @@ bool bt(std::vector<int> &solution, std::vector<int> &vars,
         std::unordered_map<int, std::pair<int, int>> &rect_sum, int m) {
   if (vars.empty())
     return true;
+  std::unordered_map<int, std::set<int>> aux_domains = domains;
+  if (!ac3(solution, aux_domains, constraints, rect_sum, m)) {
+    return false;
+  }
   auto next_vars = vars;
   int x = next_vars.back();
   next_vars.pop_back();
-  for (auto a : domains[x]) {
-    std::unordered_map<int, std::set<int>> aux_domains = domains;
+  for (auto a : aux_domains[x]) {
     int old_val = solution[x];
     solution[x] = a;
     for (auto r : rectangles[x]) {
@@ -140,12 +143,10 @@ bool bt(std::vector<int> &solution, std::vector<int> &vars,
     }
     rect_sum[-1].first += a;
     if (consistent(solution, x, rect_sum, m)) {
-      if (ac3(solution, aux_domains, constraints, rect_sum, x, m)) {
-        bool flag =
-            bt(solution, next_vars, aux_domains, constraints, rect_sum, m);
-        if (flag) {
-          return true;
-        }
+      auto bt_domains = aux_domains;
+      bool flag = bt(solution, next_vars, bt_domains, constraints, rect_sum, m);
+      if (flag) {
+        return true;
       }
     }
     solution[x] = old_val;
