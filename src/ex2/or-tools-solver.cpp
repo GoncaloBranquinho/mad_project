@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <stdexcept>
 #include <cmath>
-#include <unordered_set>
 
 using namespace operations_research;
 
@@ -14,16 +13,9 @@ void solveAllInstances(istream &inputFile) {
     inputFile >> numInstances;
     printNumInstancesToConsider(numInstances);
 
-    ofstream outputFile("../../PartsRectangulares/modified_instance_file.txt");
-    
-    if (!outputFile) {
-        print("Unable to open/create modified_instance_file.txt");
-        return;
-    }
-
     string modelsAndSolutionsFileName;
-    
-    outputFile << numInstances << "\n";
+    string fileteredPartitionsOutputFileName;
+    int numInstancesAddedToOutputFile = 0;
 
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
         printCurrentInstanceNumber(currentInstance);
@@ -37,7 +29,7 @@ void solveAllInstances(istream &inputFile) {
         map<Vertex, int> vertexToId;
         set<int> chosenVerticesIDs;
         
-        processCurrentInstanceInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, rectangleBoundaryVertices, verticesSet);
+        processCurrentInstanceInputs(inputFile, numRectangles, rectangleBoundaryVertices, verticesSet);
         
         int id = 1;
         for (const auto& vertexCoords : verticesSet) {
@@ -113,10 +105,10 @@ void solveAllInstances(istream &inputFile) {
         } else {
             print("\tNo solution found\n");
         }
-
         printAndOrSaveToFileModelAndSolutionFound(currentInstance, modelsAndSolutionsFileName, idToVertex, vertexToId, rectangleBoundaryVertices, chosenVerticesIDs);
+        savePartitionToOutputFile(numInstancesAddedToOutputFile, fileteredPartitionsOutputFileName, rectangleBoundaryVertices);
     }   
-    outputFile.close();
+    insertAtBegginingNumInstancesAddedToOutputFile(numInstancesAddedToOutputFile, fileteredPartitionsOutputFileName);
 }
 
 int main(int argc, char *argv[]) {

@@ -1,5 +1,6 @@
 #include "utils.h"
 
+string pathToFolderContainingFile = "../../PartsRectangulares/";
 
 // shared by more than one .cpp file
 void printNumInstancesToConsider(int numInstances) {
@@ -172,14 +173,13 @@ void printAllRectanglesToUpdate(const set<int>& rectanglesToUpdate) {
     print("}}\n");
 }
 
-void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, int& numRectanglesToBeCovered, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex) {
+void processCurrentInstanceInputs(istream &inputFile, int& numRectangles, int& numRectanglesToBeCovered, map<int, set<Vertex>>& rectangleBoundaryVertices, map<Vertex, int>& vertexOutDegree, map<Vertex, set<int>>& rectanglesAtVertex) {
     printPercentageToCoverInputMessage();
     float percentageToCover = getInputPercentageIfValidOrDefault100();
     inputFile >> numRectangles;
 
     numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
     printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
-    outputFile << numRectanglesToBeCovered << "\n";    
     
     set<int> randomlyChosenRectangleIDs;
     chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
@@ -203,16 +203,6 @@ void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream
                 vertexOutDegree[vertex] += 1;
                 rectangleBoundaryVertices[rectangleID].insert(vertex);
                 rectanglesAtVertex[vertex].insert(rectangleID);
-
-                if (j == 0) {
-                    outputFile << rectangleID << " " << numVertices;
-                }
-
-                outputFile << " " << x << " " << y;
-
-                if (j == numVertices - 1) {
-                    outputFile << "\n";
-                }
             }
         }
     }
@@ -223,6 +213,128 @@ void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, i
     iota(rectangleIDs.begin(), rectangleIDs.end(), 1);
     shuffle(rectangleIDs.begin(), rectangleIDs.end(), mt19937(random_device{}()));
     randomlyChosenRectangleIDs.insert(rectangleIDs.begin(), rectangleIDs.begin() + numRectanglesToBeCovered);
+}
+
+Vertex rectanglesVertexWithHighestDegree(int rectangleID, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexOutDegree) {
+    Vertex bestVertex = Vertex(-1, -1);
+    int bestVertexDegree = 0;
+    bool printComma = false;
+
+    for (const auto& vertex : rectangleBoundaryVertices.at(rectangleID)) {
+        if (vertexOutDegree.at(vertex) > bestVertexDegree) {
+            bestVertexDegree = vertexOutDegree.at(vertex);
+            bestVertex = vertex;
+        }
+    }
+    return bestVertex;
+}
+
+void getOutputFileNameInput(string& fileName, string defaultOutputFileName) {
+    bool viableFileName = false;
+    print("\n\tWARNING - The file you choose will have contents appended to it for all instances you decide to save\n");
+
+    while (!viableFileName) {
+        print("\tType output file name (\'Enter\' to default to {}, \'c\' to cancel): ", defaultOutputFileName);
+        getline(cin, fileName);
+
+        if (fileName == "c") {
+            print("\tFile saving canceled\n");
+            fileName = "";
+            break;
+        }
+
+        if (fileName.empty()) {
+            fileName = defaultOutputFileName;
+        }
+
+        if (filesystem::exists(pathToFolderContainingFile + fileName)) {
+            print("\n\tWARNING - The file \'{}\' already exists and all contents will be appended to it!\n", fileName);
+            print("\tType 'y' to proceed (any other input to cancel): ");
+
+            string proceed;
+            getline(cin, proceed);
+
+            if (proceed == "y") {
+                viableFileName = true;
+            }
+
+        } else {
+            viableFileName = true;
+        }
+    }
+}
+
+string printSavePartitionToOutputFileNameMenu(string& fileName) {
+    print("\tRegarding the current considered instance:\n");
+    print("\t(The following feature is useful in particular to test random subsets considered as input in other algorithms)\n");
+    if (fileName == "") {
+        print("\tType 'y' to save it to a file (any other input otherwise): ");
+    } else {
+        print("\tType 'y' to save it to {} (any other input otherwise): ", fileName);
+    }
+
+    string input;
+    getline(cin, input);
+
+    if (input == "y") {
+        if (fileName == "") {
+            getOutputFileNameInput(fileName, "filtered_input_partitions.txt");
+        }
+    }
+
+    return input;
+}
+
+void savePartitionToOutputFile(int& numInstancesAddedToOutputFile, string& fileName, const map<int, set<Vertex>>& rectangleBoundaryVertices) {
+    string save = printSavePartitionToOutputFileNameMenu(fileName);
+    ofstream* outputModelSolutionFile = nullptr;
+    ofstream outputModelSolutionFileStream;
+
+    if (save == "y") {
+        if (fileName != "") {
+            print("\tAppending current instance to {}...\n", fileName);
+            numInstancesAddedToOutputFile++;
+
+            outputModelSolutionFileStream.open(pathToFolderContainingFile + fileName, ios::app);
+            outputModelSolutionFile = &outputModelSolutionFileStream;
+            *outputModelSolutionFile << rectangleBoundaryVertices.size() << "\n";
+            bool printNewLine = false;
+
+            for (const auto& entry : rectangleBoundaryVertices) {
+                const auto& rectangleID = entry.first;
+                const auto& verticesSet = entry.second;
+
+                *outputModelSolutionFile << rectangleID << " " << verticesSet.size();
+
+                for (const auto& vertex : verticesSet) {
+                    *outputModelSolutionFile << " " << vertex.x << " " << vertex.y;
+                }
+
+                *outputModelSolutionFile << "\n";
+            }
+        }
+    }
+
+    print("\n");
+    outputModelSolutionFileStream.close();
+}
+
+void insertAtBegginingNumInstancesAddedToOutputFile(int& numInstancesAddedToOutputFile, string& fileName) {
+    ifstream infile(pathToFolderContainingFile + fileName);
+    ofstream tempfile(pathToFolderContainingFile + "temporary.txt");
+    
+    tempfile << numInstancesAddedToOutputFile << "\n";
+    
+    string line;
+    while (getline(infile, line)) {
+        tempfile << line << '\n';
+    }
+    
+    infile.close();
+    tempfile.close();
+    
+    remove((pathToFolderContainingFile + fileName).c_str());
+    rename((pathToFolderContainingFile + "temporary.txt").c_str(), (pathToFolderContainingFile + fileName).c_str());
 }
 
 // greedy3.cpp exclusive
@@ -246,6 +358,58 @@ void printAllRectanglesDegrees(const map<int, int>& rectangleDegree) {
     
     print("\n\t}}\n\n");
 }
+
+void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<Vertex>& affectedVertices, const map<Vertex, set<int>>& rectanglesAtVertex, const vector<bool>& rectangleCovered) {
+    for (const auto& vertex: affectedVertices) {
+        for (const auto& rectangleID : rectanglesAtVertex.at(vertex)) {
+            if (!rectangleCovered.at(rectangleID)) {
+                rectanglesToUpdate.insert(rectangleID);
+            }
+        }
+    }
+}
+
+void initializeRectanglesDegreesAndPQ(map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexOutDegree, map<int, int>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
+    for (const auto& entry : rectangleBoundaryVertices) {
+        const auto& rectangleID = entry.first;
+        const auto& verticesSet = entry.second;
+
+        int degree = 0;
+
+        for (const auto& vertexCoords : verticesSet) {
+            if (vertexOutDegree.at(vertexCoords) > 1) {
+                degree += vertexOutDegree.at(vertexCoords);
+            }
+        }
+
+        rectangleDegree[rectangleID] = degree;
+        rectanglePriorityQueue.push(PairRectangleDegree(rectangleID, degree));
+        // print("\tInitiliazlized rectangle {}'s degree to {}\n", rectangleID, degree);
+    }
+}
+
+void updateNecessaryRectanglesDegreesAndPQ(const set<int>& rectanglesToUpdate, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexOutDegree, map<int, int>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
+
+    if (rectanglesToUpdate.size() != 0) {
+        for (int rectangleID : rectanglesToUpdate) {
+            int newDegree = 0;
+            const auto& verticesSet = rectangleBoundaryVertices.at(rectangleID);
+
+            for (const auto& vertex: verticesSet) {
+                if (vertexOutDegree.at(vertex) > 1) {
+                    newDegree += vertexOutDegree.at(vertex);
+                }
+            }
+
+            const auto& oldDegree = rectangleDegree.at(rectangleID);
+            // print("\n    Updated rectangle {}'s degree from {} to {}", rectangleID, oldDegree, newDegree);
+            rectangleDegree.at(rectangleID) = newDegree;
+            rectanglePriorityQueue.push(PairRectangleDegree(rectangleID, newDegree));
+        }
+    }
+    // print("\n");
+}
+
 
 // greedy3v2.cpp exclusive
 void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree) {
@@ -274,6 +438,60 @@ void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree) {
     
     print("\t}}\n\n");
 }
+
+void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<int>& rectanglesCoveredByVertex, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, set<int>>& rectanglesAtVertex, const vector<bool>& rectangleCovered) {
+    for (const auto& rectangleID: rectanglesCoveredByVertex) {
+        for (const auto& vertex: rectangleBoundaryVertices.at(rectangleID)) {
+            for (const auto& rectID : rectanglesAtVertex.at(vertex)) {
+                if (!rectangleCovered.at(rectID)) {
+                    rectanglesToUpdate.insert(rectID);
+                }
+            }
+        }   
+    }
+}
+   
+void initializeRectanglesDegreesAndPQ(map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, set<int>>& rectanglesAtVertex,  const map<Vertex, int>& vertexOutDegree, map<int, set<int>>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
+    for (const auto& entry : rectangleBoundaryVertices) {
+        const auto& rectangleID = entry.first;
+        const auto& verticesSet = entry.second;
+        rectangleDegree[rectangleID]; // empty entry so that isolated rectangles (degree = 0) enter the priority queue
+
+        for (const auto& vertex : verticesSet) {
+            for (const auto& rectID : rectanglesAtVertex.at(vertex)) {
+                if (rectID != rectangleID) {
+                    rectangleDegree[rectID].insert(rectangleID);
+                    rectangleDegree[rectangleID].insert(rectID);
+                }
+            }
+        }
+    }
+
+    for (const auto& entry: rectangleDegree) {
+        const auto& rectangleID = entry.first;
+        const auto& numAdjacentRectangles = entry.second.size();
+        rectanglePriorityQueue.push(PairRectangleDegree(rectangleID, numAdjacentRectangles));
+        // print("\tInitiliazlized rectangle {}'s degree to {}\n", rectangleID, numAdjacentRectangles);
+    }
+}
+
+void updateNecessaryRectanglesDegreesAndPQ(const set<int>& rectanglesToUpdate, const set<int>& rectanglesCoveredByVertex, map<int, set<int>>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
+    if (rectanglesToUpdate.size() != 0) {
+        for (const auto& rectangleIDCoveredByVertex : rectanglesCoveredByVertex) {
+            for (const auto& rectangleID : rectanglesToUpdate) {
+                if (rectangleDegree.contains(rectangleID)) {
+                    rectangleDegree[rectangleID].erase(rectangleIDCoveredByVertex);
+                }
+            }
+        }
+
+        for (const auto& rectangleID : rectanglesToUpdate) {
+            int newDegree = rectangleDegree[rectangleID].size();
+            rectanglePriorityQueue.push(PairRectangleDegree(rectangleID, newDegree));
+        }
+    }
+}
+
 
 // or-tools-solver.cpp exclusive
 void printVerticesSet(const set<Vertex>& verticesSet) {
@@ -333,14 +551,13 @@ void printVerticesToIDs(const map<Vertex, int>& vertexToId) {
     print("\n\t}}\n\n");
 }
 
-void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream& outputFile, int& numRectangles, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
+void processCurrentInstanceInputs(istream &inputFile, int& numRectangles, map<int, set<Vertex>>& rectangleBoundaryVertices, set<Vertex>& verticesSet) {
     printPercentageToCoverInputMessage();
     float percentageToCover = getInputPercentageIfValidOrDefault100();
     inputFile >> numRectangles;
 
     int numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
     printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
-    outputFile << numRectanglesToBeCovered << "\n";    
     
     set<int> randomlyChosenRectangleIDs;
     chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
@@ -363,16 +580,6 @@ void processCurrentInstanceInputsAndAddToOutputFile(istream &inputFile, ofstream
                 const auto vertex = Vertex(x, y);
                 verticesSet.insert(vertex);
                 rectangleBoundaryVertices[rectangleID].insert(vertex);
-                
-                if (j == 0) {
-                    outputFile << rectangleID << " " << numVertices;
-                }
-
-                outputFile << " " << x << " " << y;
-
-                if (j == numVertices - 1) {
-                    outputFile << "\n";
-                }
             }
         }
     }
@@ -502,62 +709,32 @@ void printAndOrSaveToFileSolutionFound(ofstream* outputModelSolutionFile, bool p
     if (printToOutput) { print("{}", currentLine); }
 }
 
-string printAndGetOptionFromModelAndSolutionFoundMenu() {
+string printAndGetOptionFromModelAndSolutionFoundMenu(string& fileName) {
     print("\tRegarding the current instance's model and solution, please select an option:\n");
     print("\t  - Type '1' to view it\n");
-    print("\t  - Type '2' to save it to a file\n");
+    if (fileName == "") {
+        print("\t  - Type '2' to save it to a file\n");
+    } else {
+        print("\t  - Type '2' to save it to {}\n", fileName);
+    }
     print("\t  - Type '3' for both of the above\n");
     print("\t  - Any other input for none of the above\n");
     print("\tOption: ");
 
     string selectedOption;
-
     getline(cin, selectedOption);
     
+    if (selectedOption == "2" || selectedOption == "3") {
+        if (fileName == "") {
+            getOutputFileNameInput(fileName, "models_and_solutions.txt");
+        }
+    }
+
     return selectedOption;
 }
 
-void getModelsAndSolutionsFileName(string& fileName) {
-    if (fileName != "") {
-        return;
-    }
-    
-    bool viableFileName = false;
-    print("\n\tWARNING - The file you choose will have contents appended to it for all instances you decide to save\n");
-
-    while (!viableFileName) {
-        print("\tType output file name (\'Enter\' to default to models_and_solutions.txt, \'c\' to cancel): ");
-        getline(cin, fileName);
-
-        if (fileName == "c") {
-            print("\tFile saving canceled\n");
-            fileName = "";
-            break;
-        }
-
-        if (fileName.empty()) {
-            fileName = "models_and_solutions.txt";
-        }
-
-        if (filesystem::exists(fileName)) {
-            print("\tThe file \'{}\' already exists and all contents will be appended to it!\n", fileName);
-            print("\tType 'y' to proceed (any other input for no): ");
-
-            string proceed;
-            getline(cin, proceed);
-
-            if (proceed == "y") {
-                viableFileName = true;
-            }
-
-        } else {
-            viableFileName = true;
-        }
-    }
-}
-
 void printAndOrSaveToFileModelAndSolutionFound(int& currentInstance, string& fileName, const map<int, Vertex>& idToVertex, const map<Vertex, int>& vertexToId, const map<int, set<Vertex>>& rectangleBoundaryVertices, const set<int>& chosenVerticesIDs) {
-    string selectedOption = printAndGetOptionFromModelAndSolutionFoundMenu();
+    string selectedOption = printAndGetOptionFromModelAndSolutionFoundMenu(fileName);
     bool printToOutput = false;
     ofstream* outputModelSolutionFile = nullptr;
     ofstream outputModelSolutionFileStream;
@@ -567,11 +744,6 @@ void printAndOrSaveToFileModelAndSolutionFound(int& currentInstance, string& fil
     }
 
     if (selectedOption == "2" || selectedOption == "3") {
-        if (fileName == "") {
-            getModelsAndSolutionsFileName(fileName);
-        }
-
-        // may cancel operation
         if (fileName != "") {
             print("\tAppending current instance's model and solution to {}...\n", fileName);
             outputModelSolutionFileStream.open(fileName, ios::app);

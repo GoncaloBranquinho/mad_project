@@ -26,14 +26,8 @@ void solveAllInstances(istream &inputFile) {
     inputFile >> numInstances;
     printNumInstancesToConsider(numInstances);
 
-    ofstream outputFile("../../PartsRectangulares/modified_instance_file.txt");
-    
-    if (!outputFile) {
-        print("Unable to open/create modified_instance_file.txt");
-        return;
-    }
-
-    outputFile << numInstances << "\n";
+    string fileteredPartitionsOutputFileName;
+    int numInstancesAddedToOutputFile = 0;
 
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
         printCurrentInstanceNumber(currentInstance);
@@ -47,7 +41,7 @@ void solveAllInstances(istream &inputFile) {
         map<Vertex, int> currOutDegree;
         priority_queue<VertexWithOutDegree> vertexPriorityQueue;
 
-        processCurrentInstanceInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, numRectanglesToBeCovered, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
+        processCurrentInstanceInputs(inputFile, numRectangles, numRectanglesToBeCovered, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
 
         for (const auto& vertex : vertexOutDegree) {
             auto vertexCoords = vertex.first;
@@ -87,11 +81,10 @@ void solveAllInstances(istream &inputFile) {
                 }
             }
         }
-
         printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
+        savePartitionToOutputFile(numInstancesAddedToOutputFile, fileteredPartitionsOutputFileName, rectangleBoundaryVertices);
     }
-    
-    outputFile.close();
+    insertAtBegginingNumInstancesAddedToOutputFile(numInstancesAddedToOutputFile, fileteredPartitionsOutputFileName);
 }
 
 

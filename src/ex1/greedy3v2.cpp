@@ -1,120 +1,13 @@
 #include "../utils/utils.h"
 
-class PairRectangleDegree {
-    public:
-    int rectangleID;
-    int rectangleDegree;
-
-    PairRectangleDegree(int rectangleID, int rectangleDegree) {
-        this->rectangleID = rectangleID;
-        this->rectangleDegree = rectangleDegree;
-    }
-
-    bool operator <(const PairRectangleDegree &other) const {
-        if (this->rectangleDegree == other.rectangleDegree) {
-            return this->rectangleID > other.rectangleID;
-        }
-
-        return this->rectangleDegree > other.rectangleDegree;
-    }
-};
-
-void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<int>& rectanglesCoveredByVertex, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, set<int>>& rectanglesAtVertex, const vector<bool>& rectangleCovered) {
-    for (const auto& rectangleID: rectanglesCoveredByVertex) {
-        for (const auto& vertex: rectangleBoundaryVertices.at(rectangleID)) {
-            for (const auto& rectID : rectanglesAtVertex.at(vertex)) {
-                if (!rectangleCovered.at(rectID)) {
-                    rectanglesToUpdate.insert(rectID);
-                }
-            }
-        }   
-    }
-}
-   
-void initializeRectanglesDegreesAndPQ(map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, set<int>>& rectanglesAtVertex,  const map<Vertex, int>& vertexOutDegree, map<int, set<int>>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
-
-    for (const auto& entry : rectangleBoundaryVertices) {
-        const auto& rectangleID = entry.first;
-        const auto& verticesSet = entry.second;
-        rectangleDegree[rectangleID]; // empty entry so that isolated rectangles (degree = 0) enter the priority queue
-
-        for (const auto& vertex : verticesSet) {
-            for (const auto& rectID : rectanglesAtVertex.at(vertex)) {
-                if (rectID != rectangleID) {
-                    rectangleDegree[rectID].insert(rectangleID);
-                    rectangleDegree[rectangleID].insert(rectID);
-                }
-            }
-        }
-    }
-
-    for (const auto& entry: rectangleDegree) {
-        const auto& rectangleID = entry.first;
-        const auto& numAdjacentRectangles = entry.second.size();
-        rectanglePriorityQueue.push(PairRectangleDegree(rectangleID, numAdjacentRectangles));
-        // print("\tInitiliazlized rectangle {}'s degree to {}\n", rectangleID, numAdjacentRectangles);
-    }
-}
-
-Vertex rectanglesVertexWithHighestDegree(int rectangleID, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexOutDegree) {
-
-    // print("\n    Most \"isolated\" rectangle: {} -> {{", rectangleID);
-    Vertex bestVertex = Vertex(-1, -1);
-    int bestVertexDegree = 0;
-    bool printComma = false;
-
-    for (const auto& vertex : rectangleBoundaryVertices.at(rectangleID)) {
-        // if (printComma) {
-        //     print(", ");
-        // } else {
-        //     printComma = true;
-        // }
-
-        // print("(({}, {}), {})", vertex.first, vertex.second, vertexOutDegree.at(vertex));
-
-        if (vertexOutDegree.at(vertex) > bestVertexDegree) {
-            bestVertexDegree = vertexOutDegree.at(vertex);
-            bestVertex = vertex;
-        }
-    }
-
-    // print("}}\n");
-    // print("\tThe rectangle's vertex with highest outDegree is ({}, {}) with outDegree {}\n", bestVertex.first, bestVertex.second, bestVertexDegree);
-
-    return bestVertex;
-}
-
-void updateNecessaryRectanglesDegreesAndPQ(const set<int>& rectanglesToUpdate, const set<int>& rectanglesCoveredByVertex, map<int, set<int>>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
-    if (rectanglesToUpdate.size() != 0) {
-        for (const auto& rectangleIDCoveredByVertex : rectanglesCoveredByVertex) {
-            for (const auto& rectangleID : rectanglesToUpdate) {
-                if (rectangleDegree.contains(rectangleID)) {
-                    rectangleDegree[rectangleID].erase(rectangleIDCoveredByVertex);
-                }
-            }
-        }
-
-        for (const auto& rectangleID : rectanglesToUpdate) {
-            int newDegree = rectangleDegree[rectangleID].size();
-            rectanglePriorityQueue.push(PairRectangleDegree(rectangleID, newDegree));
-        }
-    }
-}
-
-
 void solveAllInstances(istream &inputFile) {
     int numInstances;
     inputFile >> numInstances;
     printNumInstancesToConsider(numInstances);
 
-    ofstream outputFile("../../PartsRectangulares/modified_instance_file.txt");
-    
-    if (!outputFile) {
-        print("Unable to open/create modified_instance_file.txt");
-        return;
-    }
+    string fileteredPartitionsOutputFileName;
+    int numInstancesAddedToOutputFile = 0;
 
-    outputFile << numInstances << "\n";
 
     for (int currentInstance = 1; currentInstance <= numInstances; currentInstance++) {
         printCurrentInstanceNumber(currentInstance);
@@ -128,7 +21,7 @@ void solveAllInstances(istream &inputFile) {
         map<int, set<int>> rectangleDegree;
         priority_queue<PairRectangleDegree> rectanglePriorityQueue;
 
-        processCurrentInstanceInputsAndAddToOutputFile(inputFile, outputFile, numRectangles, numRectanglesToBeCovered, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
+        processCurrentInstanceInputs(inputFile, numRectangles, numRectanglesToBeCovered, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
         initializeRectanglesDegreesAndPQ(rectangleBoundaryVertices, rectanglesAtVertex, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
 
         int coveredRectangles = 0;
@@ -175,11 +68,10 @@ void solveAllInstances(istream &inputFile) {
                 // print("\tPlacing guard in ({}, {})\n", bestVertex.first, bestVertex.second);
             }
         }
-
         printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
+        savePartitionToOutputFile(numInstancesAddedToOutputFile, fileteredPartitionsOutputFileName, rectangleBoundaryVertices);
     }
-    
-    outputFile.close();
+    insertAtBegginingNumInstancesAddedToOutputFile(numInstancesAddedToOutputFile, fileteredPartitionsOutputFileName);
 }
 
 
