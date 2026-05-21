@@ -2,7 +2,7 @@
 
 #include "SharedByAllUtils.h"
 
-// only used by greedy4.cpp, greedy3v2.cpp and greedy4.cpp but unnecessary to create a file just for this
+// only used by greedy3.cpp, greedy3v2.cpp and greedy4.cpp but unnecessary to create a file just for this
 class PairRectangleDegree {
     public:
     int rectangleID;
