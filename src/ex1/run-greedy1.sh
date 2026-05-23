@@ -1,5 +1,0 @@
-printf "Compiling greedy1.cpp, please wait... "
-g++ -O3 -std=c++23 "greedy1.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o "greedy1"
-printf "\n"
-./"greedy1" "../../inputs/input-files/$1"
-rm "greedy1"

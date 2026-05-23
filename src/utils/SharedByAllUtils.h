@@ -51,7 +51,7 @@ void savePartitionToOutputFile(int& numInstancesAddedToOutputFile, string& fileN
 
 void printMinimumNumberOfGuardsRequired(int minNumGuardsRequired);
 
-void insertAtBegginingNumInstancesAddedToOutputFile(int& numInstancesAddedToOutputFile, string& fileName);
+void insertAtBegginingNumInstancesAddedToOutputFile(int numInstancesAddedToOutputFile, string& fileName);
 
 void printPercentageOfRectanglesInConsideration(float percentageToCover, int numRectanglesToBeCovered, int numRectangles);
 

@@ -1,0 +1,38 @@
+read -p "Type greedy algorithm to run (1, 3, 3v2, 4): greedy" greedyVersion
+greedy="greedy"$greedyVersion
+
+if [ ! -f "$greedy.cpp" ]; then
+    printf "$greedy.cpp file doesn't exist\n"
+else
+    inputFilesPath="../../inputs/input-files/"
+    read -p "Type input file name (from $inputFilesPath): " inputFileName
+    fullPathToInputFile=$inputFilesPath$inputFileName
+
+    if [ ! -f "$fullPathToInputFile" ]; then
+        printf "$inputFilesPath file doesn't exist\n"
+    else
+        inputFilesImagesPath="../../inputs/input-files-images/"
+        read -p "Type 'y' to preview input partition image: " inputAnswer
+        fullPathToInputFileImage=$inputFilesImagesPath$inputFileName.pdf
+
+        if [ "$inputAnswer" == "y" ]; then
+            if [ -f "$fullPathToInputFileImage" ]; then
+                open -a Preview $fullPathToInputFileImage 
+            else
+                printf "$inputFileName.pdf image file doesn't exist\n"
+            fi
+        fi
+
+        printf "Compiling $greedy.cpp, please wait... "
+        
+        if [ "$greedyVersion" == "1" ]; then
+            g++ -O3 -std=c++23 "$greedy.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $greedy
+        else
+            g++ -O3 -std=c++23 "$greedy.cpp" "../utils/Greedy"$greedyVersion"NecessaryUtils.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $greedy
+        fi
+
+        printf "\n"
+        ./"$greedy" $fullPathToInputFile
+        rm $greedy
+    fi
+fi

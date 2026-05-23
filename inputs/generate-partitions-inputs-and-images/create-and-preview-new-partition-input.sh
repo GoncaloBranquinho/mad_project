@@ -1,13 +1,23 @@
-DIR=../input-files-images
-IN=../input-files/$1.txt
-OUT=$DIR/$1
+inputFilesPath="../input-files/"
+inputFilesImagesPath="../input-files-images/"
+
+printf "Generating new partition (input file and image) ...\n"
+read -p "Type file name (no extension please, i.e, .txt, .tex etc): " fileName
+
+inputFilePath=$inputFilesPath$fileName
+inputFilesImagePath=$inputFilesImagesPath$fileName
 
 gcc InstancesGenerator.c -o InstancesGenerator
-./InstancesGenerator $IN $OUT.tex
-pdflatex -output-directory=$DIR $OUT.tex
-open -a Preview $OUT.pdf
+./InstancesGenerator $inputFilePath $inputFilesImagePath.tex
+pdflatex -output-directory=$inputFilesImagesPath $inputFilesImagePath.tex
 
 rm InstancesGenerator
-rm $OUT.aux
-rm $OUT.log
-rm $OUT.tex
+rm $inputFilesImagePath.aux
+rm $inputFilesImagePath.log
+rm $inputFilesImagePath.tex
+
+read -p "Type 'y' to preview generated partition: " inputAnswer
+
+if [ "$inputAnswer" == "y" ]; then 
+    open -a Preview $inputFilesImagePath.pdf 
+fi

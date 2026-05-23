@@ -1,1 +1,0 @@
-./build/main "../../inputs/input-files/$1" $2

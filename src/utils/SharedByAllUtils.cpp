@@ -1,6 +1,7 @@
 #include "SharedByAllUtils.h"
 
 string pathToFolderContainingFile = "../../inputs/input-files/";
+bool alreadyExistingFile = false;
 
 void printNumInstancesToConsider(int numInstances) {
     print("\nTotal instances to consider: {}\n\n", numInstances);
@@ -37,6 +38,7 @@ void getOutputFileNameInput(string& fileName, string defaultOutputFileName) {
 
             if (proceed == "y") {
                 viableFileName = true;
+                alreadyExistingFile = true;
             }
 
         } else {
@@ -59,7 +61,7 @@ string printSavePartitionToOutputFileNameMenu(string& fileName) {
 
     if (input == "y") {
         if (fileName == "") {
-            getOutputFileNameInput(fileName, "filtered_input_partitions.txt");
+            getOutputFileNameInput(fileName, "modified_input");
         }
     }
 
@@ -104,16 +106,25 @@ void printMinimumNumberOfGuardsRequired(int minNumGuardsRequired) {
     print("\tMinimum number of guards required: {}\n\n", minNumGuardsRequired);
 }
 
-void insertAtBegginingNumInstancesAddedToOutputFile(int& numInstancesAddedToOutputFile, string& fileName) {
+void insertAtBegginingNumInstancesAddedToOutputFile(int numInstancesAddedToOutputFile, string& fileName) {
     if (fileName != "") {
         ifstream infile(pathToFolderContainingFile + fileName);
         ofstream tempfile(pathToFolderContainingFile + "temporary.txt");
         
-        tempfile << numInstancesAddedToOutputFile << "\n";
+        if (!alreadyExistingFile) {
+            tempfile << numInstancesAddedToOutputFile << "\n";
+        }
         
         string line;
+        int iteration = 1;
         while (getline(infile, line)) {
-            tempfile << line << '\n';
+            if (iteration == 1 && alreadyExistingFile) {
+                int updatedNumInstances = numInstancesAddedToOutputFile + stoi(line);
+                tempfile << updatedNumInstances << "\n";
+            } else {
+                tempfile << line << '\n'; 
+            }
+            iteration++;
         }
         
         infile.close();
