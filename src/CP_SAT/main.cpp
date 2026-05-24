@@ -28,7 +28,7 @@ void solve(std::istream &f) {
   std::map<std::pair<int, int>, int> pair_to_id;
   std::unordered_map<int, std::pair<int, int>> id_to_pair;
   CpModelBuilder cp_model;
-  const Domain domain(0, 2);
+  const Domain domain(0, 1);
   int n_rect;
   int n_vert;
   int last = 1;

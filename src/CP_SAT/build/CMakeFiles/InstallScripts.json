@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/goncalo/Projects/mad_project/src/CP_SAT/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
