@@ -76,8 +76,9 @@ void solve2(int sol) {
     }
   }
 
-  expr = LinearExpr();
   for (int color = 1; color < c.size(); color++) {
+    expr = LinearExpr();
+
     for (int i = 1; i <= rectangles.size(); i++) {
       expr += u[i][color];
     }
