@@ -1,0 +1,99 @@
+\documentclass{report}
+
+\usepackage{biblatex}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage[bottom]{footmisc}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+
+% \addbibresource{bibliography.bib}
+
+\setlength{\parskip}{\bigskipamount}
+
+\begin{document}
+
+\tableofcontents
+
+\chapter{Introduction}
+
+\section{Objectives}
+
+\begin{enumerate}
+	\item .
+\end{enumerate}
+
+
+\chapter{Greedy Approaches}
+
+\section{Analysis}
+
+
+\chapter{Integer Programming}
+In this chapter, an Integer programming model is presented. The initial step in this process is to establish the mathematical formulation of the problem, which includes the definition of the decision variables, constraints, and objective function.
+Then, the implementation of this approach using Google OR-Tools is described, followed by an interpretation of the results.
+\section{Mathematical Model}
+Let $m$ be the number of rectangles to cover, $n$ the number of vertices and $p_{ij}$ represented as follows:
+
+\[
+p_{ij} =
+\begin{cases}
+1, & \text{if rectangle } j \text{ is incident to vertex } i \\
+0, & \text{otherwise}
+\end{cases}
+\]
+
+Decision Variables: $v_{i}$ indicates wheter vertex $i$ has a guard or not.
+
+The objective is to minimize the total number of guards:
+
+\[\sum_{i = 1}^{n} v_{i}\]
+
+subject to the following constraints:
+
+\[
+\begin{cases}
+	\sum_{i = 1}^{n} v_{i} \times p_{ij} \ge 1, \quad \forall j = 1,2,\dots,m \\
+	v_{i} \in \{0,1\}, \quad \forall i = 1,2,\dots,n                          \\
+\end{cases}
+\]
+
+The objective of this constraint is to ensure that each rectangle is covered by ensuring that at least one of its vertices possesses a guard.
+
+\section{OR-Tools}
+
+\chapter{Constraint Programming}
+% update
+In this chapter, a Constraint programming model is presented. The initial step in this process is to establish the Constraint Optimization Problem (COP). Then, we discuss how to solve the COP using two different methods: maintaining arc-consistency with AC-3 and using OR-Tools.
+
+\section{Constraint Optimization Problem}
+A Constraint Optimization Problem is a tuple $(X, D, C)$ where:
+\begin{itemize}
+    \item $X = \{x_1, x_2, \dots, x_n\}$ is the set of variables;
+    \item $D = \{d_1, d_2, \dots, d_n\}$ is the set of domains, where $d_i$ is a finite set of possible values for $x_i$;
+    \item $C = \{c_1, c_2, \dots, c_m\}$ is the set of constraints;
+    \item $f$ is the optimization function.
+\end{itemize}
+
+The following COP can be used to model this problem:
+
+\begin{itemize}
+  \item $X = \{v_1, v_2, \dots, v_{n}\}$: set of vertices;
+    \item $D = \{d_1, d_2, \dots, d_{n}\}: d_1 = d_2 = \dots = d_{n} = \{0,1\}$;
+    \item $C$: \(\sum_{i = 1}^n v_i \times p_{ij} \ge 1 \in C, \quad \forall j = 1,2,\dots,m \);
+    \item $f$ = \(\sum_{i = 1}^n v_i\). 
+\end{itemize}
+
+The model under discussion is essentially analogous to the model for integer programming, but expressed in the form of a COP.
+\section{AC-3}
+\section{OR-Tools}
+
+
+\chapter{Extensions}
+
+\chapter{Conclusion}
+
+% \printbibliography
+
+\end{document}
