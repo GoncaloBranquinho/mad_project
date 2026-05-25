@@ -6,6 +6,8 @@
 \usepackage[bottom]{footmisc}
 \usepackage{amsmath}
 \usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 
 % \addbibresource{bibliography.bib}
@@ -87,6 +89,151 @@ The following COP can be used to model this problem:
 
 The model under discussion is essentially analogous to the model for integer programming, but expressed in the form of a COP.
 \section{AC-3}
+In this section, the methodology for solving the COP mentioned in the previous section, by maintaining arc consistency, will be demonstrated using AC-3 as a mean of filtering and propagating information.
+
+Two different approaches were considered with regard to the AC-3. Initially, it seemed a good idea to perform a dual graph translation to obtain the corresponding binary COP. However, this would result in exponential complexity for the translation and a combinatorial explosion in the number of constraints in the resulting binary formulation. Therefore, we opted for a generalised version of the AC-3, which, although still computationally expensive, does not require an initial translation step.
+
+The following pseudocode describes the AC-3 algorithm:
+
+\vspace{1\baselineskip}
+
+\begin{algorithmic}
+
+\Procedure{AC3}{$X, D, C$}
+
+    \State $Q \leftarrow \{(i,c)\mid c \in C,\ x_i \in \text{scope}(c)\}$
+
+    \While{$Q \neq \emptyset$}
+
+        \State $(i,c) \leftarrow \text{Fetch}(Q)$
+
+        \If{\Call{Revise}{$i,c$}}
+
+            \State $Q \leftarrow Q \cup \{(j,c') \mid c' \in C,\ c' \neq c,\ j \neq i,\ \{x_i,x_j\} \subseteq \text{scope}(c')\}$
+
+        \EndIf
+
+    \EndWhile
+
+\EndProcedure
+
+\end{algorithmic}
+
+\vspace{1\baselineskip}
+
+\begin{algorithmic}
+
+\Function{Revise}{$i, c$}
+
+    \State $change \leftarrow false$
+
+    \For{each $a \in d_i$}
+
+    \If{$\forall a_1 \in d_1,\dots,a_{i-1}\in d_{i-1},a_{i+1}\in d_{i+1},\dots,a_k\in d_k, \neg c(x_1 \leftarrow a_1,\dots,x_i \leftarrow a,\dots,x_k \leftarrow a_k)$}
+            
+            \State remove $a$ from $d_i$
+            \State $change \leftarrow true$
+
+        \EndIf
+
+    \EndFor
+
+    \State \Return $change$
+
+\EndFunction
+
+\end{algorithmic}
+
+
+Although AC-3 itself is employed for the filtration of information, a method of propagating the filtered results is still required. The search algorithm that has been selected to work in conjunction with AC-3 is known as backtracking.
+
+The following pseudocode describes the backtracking algorithm:
+
+\vspace{1\baselineskip}
+
+\begin{algorithmic}
+
+\Function{BT}{$\tau, X, D, C$}
+
+    \If{$X$ is empty}
+        \State \Return true
+    \EndIf
+
+    \If{$\neg AC3(X, D, C)$}
+        \State \Return false
+    \EndIf
+
+    \State $x_i \leftarrow \text{Select}(X)$
+
+    \For{each $a \in \text{Domain}(x_i)$}
+        \State $\tau(x_i) \leftarrow a$
+        \If{\text{consistent}($\tau, C, x_i$)}
+            \If{\Call{BT}{$\tau, X, D[d_i \rightarrow \{a\}], C$}}
+                \State \Return true
+            \EndIf
+        \EndIf
+
+        \State restore state or use persistent data structures
+    \EndFor
+
+    \State \Return false
+
+\EndFunction
+\end{algorithmic}
+
+\vspace{1\baselineskip}
+
+\begin{algorithmic}
+
+\Function{consistent}{$\tau, C, x_i$}
+
+    \For{each $c \in C$ s.t $\text{scope}(c) \subseteq \text{vars}(\tau)$ and $x_i \in \text{scope}(c)$}
+
+        \If{$\neg c(\tau)$}
+            \State \Return false
+        \EndIf
+
+    \EndFor
+
+    \State \Return true
+
+\EndFunction
+
+\end{algorithmic}
+
+As AC-3 and backtracking only determine the existence of a feasible solution within a given bound, an additional optimisation strategy is required to minimise the objective function. Thefore,  we perform a binary search over the objective value. Let k be an upper bound on the number of selected vertices. A new constraint is temporarily added to the CPO. 
+
+If no solution is found, the lower bound variable is updated. Otherwise, a feasible solution has been found and the upper bound variable can be reduced. This process continues until the optimal value is identified. At the end, the optimal value is stored in the lower bound variable $l$.
+
+\vspace{1\baselineskip}
+
+\begin{algorithmic}
+
+\Procedure{BinarySearch}{$X, D, C$}
+
+    \State $l \leftarrow 0$
+    \State $r \leftarrow m$
+
+    \While{$l < r$}
+
+        \State $m \leftarrow l + (r-l)/2$
+
+        \State add constraint $f \leq m$
+
+        \If{\Call{BT}{$\tau, X, D, C$}}
+            \State $r \leftarrow m$
+        \Else
+            \State $l \leftarrow m + 1$
+        \EndIf
+
+    \EndWhile
+
+    \State \Return $l$
+
+\EndProcedure
+
+\end{algorithmic}
+
 \section{OR-Tools}
 
 
