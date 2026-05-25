@@ -64,6 +64,16 @@ subject to the following constraints:
 The objective of this constraint is to ensure that each rectangle is covered by ensuring that at least one of its vertices possesses a guard.
 
 \section{OR-Tools}
+The implementation of the Integer Programming model utilizes the \texttt{MPSolver} interface from Google OR-Tools, specifically configured to use the SCIP (Solving Constraint Integer Programs) backend.
+
+The implementation translates the mathematical formulation directly into code:
+\begin{itemize}
+    \item \textbf{Variables:} Using \texttt{solver->MakeIntVar(0.0, 1.0, name)}, boolean decision variables $v_i$ are instantiated for each candidate vertex in the problem space.
+    \item \textbf{Constraints:} For each rectangle, a row constraint is created via \texttt{solver->MakeRowConstraint(1.0, solver->infinity())}. The variables corresponding to the vertices incident to that rectangle are assigned a coefficient of 1. This enforces the condition $\sum_{i=1}^{n} v_i \times p_{ij} \ge 1$.
+    \item \textbf{Objective Function:} The objective function is defined by setting the coefficient of every vertex variable to 1 and invoking \texttt{objective->SetMinimization()} to ensure the solver finds the minimum set of guards.
+\end{itemize}
+
+Additionally, to improve solver performance by reducing the search space, a theoretical lower bound for the number of guards needed (e.g., $\lceil m / 3 \rceil$, where $m$ is the number of rectangles to be covered) is calculated and added as a global row constraint. This prevents the solver from evaluating unfeasible sub-optimal branches.
 
 \chapter{Constraint Programming}
 % update
@@ -235,6 +245,27 @@ If no solution is found, the lower bound variable is updated. Otherwise, a feasi
 \end{algorithmic}
 
 \section{OR-Tools}
+To implement the Constraint Optimization Problem, the OR-Tools CP-SAT solver is employed via the \texttt{CpModelBuilder} API. The CP-SAT solver utilizes satisfiability (SAT) methods under the hood to efficiently explore the domain.
+
+The model construction follows a two-phase approach based on the implementation:
+\begin{enumerate}
+    \item \textbf{Guard Placement (Phase 1):}
+    \begin{itemize}
+        \item \textbf{Variables:} The decision variables $v_i$ are initialized using \texttt{cp\_model.NewIntVar(domain)}, strictly bounded to a domain of $\{0, 1\}$.
+        \item \textbf{Constraints:} The coverage constraints are constructed using linear expressions (\texttt{LinearExpr}). For each rectangle, the boolean variables of its incident vertices are summed, and the constraint is strictly enforced using \texttt{cp\_model.AddGreaterOrEqual(expr, 1)}.
+        \item \textbf{Objective:} The objective is defined as minimizing the sum of all $v_i$ variables via \texttt{cp\_model.Minimize(expr)}.
+    \end{itemize}
+
+    \item \textbf{Guard Coloring (Phase 2):}
+    Once the first phase determines the optimal minimum number of guards, a secondary solver instance is invoked to solve an assignment problem (e.g., assigning distinct frequencies or shifts), effectively minimizing the chromatic number of the placed guards.
+    \begin{itemize}
+        \item \textbf{Variables:} The model introduces a boolean array $c_j$ indicating whether a color $j$ is utilized, and a 2D matrix $u_{i,j}$ mapping vertex $i$ to color $j$.
+        \item \textbf{Constraints:} The constraints ensure that the total number of placed guards strictly equals the optimal solution found in Phase 1 (\texttt{AddEquality(expr, sol)}), and bounds the color assignment variables to logically link the mapping $u_{i,j}$ with the active colors $c_j$.
+        \item \textbf{Objective:} The goal transitions to minimizing the sum of the color variables $c_j$.
+    \end{itemize}
+\end{enumerate}
+
+The models are compiled and solved using \texttt{Solve(cp\_model.Build())}. The solver returns a \texttt{CpSolverResponse}, which yields both the optimal geometric configuration of guards and their minimum chromatic assignment.
 
 
 \chapter{Extensions}
