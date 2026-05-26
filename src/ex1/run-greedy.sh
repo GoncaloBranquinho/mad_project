@@ -1,8 +1,8 @@
-read -p "Type greedy algorithm to run (1, 3, 3v2, 4): greedy" greedyVersion
-greedy="greedy"$greedyVersion
+read -p "Type Greedy algorithm to run (1, 3, 3v2, 4): Greedy" greedyVersion
+Greedy="Greedy"$greedyVersion
 
-if [ ! -f "$greedy.cpp" ]; then
-    printf "$greedy.cpp file doesn't exist\n"
+if [ ! -f "$Greedy.cpp" ]; then
+    printf "$Greedy.cpp file doesn't exist\n"
 else
     inputFilesPath="../../inputs/input-files/"
     read -p "Type input file name (from $inputFilesPath): " inputFileName
@@ -23,16 +23,16 @@ else
             fi
         fi
 
-        printf "Compiling $greedy.cpp, please wait... "
+        printf "Compiling $Greedy.cpp, please wait... "
         
         if [ "$greedyVersion" == "1" ]; then
-            g++ -O3 -std=c++23 "$greedy.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $greedy
+            g++ -O3 -std=c++23 "$Greedy.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $Greedy
         else
-            g++ -O3 -std=c++23 "$greedy.cpp" "../utils/Greedy"$greedyVersion"NecessaryUtils.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $greedy
+            g++ -O3 -std=c++23 "$Greedy.cpp" "../utils/Greedy"$greedyVersion"NecessaryUtils.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $Greedy
         fi
 
         printf "\n"
-        ./"$greedy" $fullPathToInputFile
-        rm $greedy
+        ./"$Greedy" $fullPathToInputFile
+        rm $Greedy
     fi
 fi
