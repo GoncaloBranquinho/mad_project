@@ -27,11 +27,12 @@ void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree) {
     print("\t}}\n\n");
 }
 
-void initializeRectanglesDegreesAndPQ(map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, set<int>>& rectanglesAtVertex,  const map<Vertex, int>& vertexOutDegree, map<int, set<int>>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
+void initializeRectanglesDegreesAndPQ(map<int, bool>& rectangleCovered, map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, set<int>>& rectanglesAtVertex,  const map<Vertex, int>& vertexOutDegree, map<int, set<int>>& rectangleDegree, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
     for (const auto& entry : rectangleBoundaryVertices) {
         const auto& rectangleID = entry.first;
         const auto& verticesSet = entry.second;
         rectangleDegree[rectangleID]; // empty entry so that isolated rectangles (degree = 0) enter the priority queue
+        rectangleCovered[rectangleID] = false;
 
         for (const auto& vertex : verticesSet) {
             for (const auto& rectID : rectanglesAtVertex.at(vertex)) {
@@ -51,7 +52,7 @@ void initializeRectanglesDegreesAndPQ(map<int, set<Vertex>>& rectangleBoundaryVe
     }
 }
 
-void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<int>& rectanglesCoveredByVertex, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, set<int>>& rectanglesAtVertex, const vector<bool>& rectangleCovered) {
+void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<int>& rectanglesCoveredByVertex, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, set<int>>& rectanglesAtVertex, const map<int, bool>& rectangleCovered) {
     for (const auto& rectangleID: rectanglesCoveredByVertex) {
         for (const auto& vertex: rectangleBoundaryVertices.at(rectangleID)) {
             for (const auto& rectID : rectanglesAtVertex.at(vertex)) {

@@ -117,18 +117,21 @@ void processCurrentInstanceInputs(istream &inputFile, int& numRectangles, int& n
     numRectanglesToBeCovered = lround(numRectangles * percentageToCover / 100.0);
     printPercentageOfRectanglesInConsideration(percentageToCover, numRectanglesToBeCovered, numRectangles);
     
-    set<int> randomlyChosenRectangleIDs;
-    chooseRandomRectanglesFromPartition(randomlyChosenRectangleIDs, numRectanglesToBeCovered, numRectangles);
-    if (numRectanglesToBeCovered != numRectangles) {
-        printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
-    }    
+    set<int> randomlyChosenIndices;
+    chooseRandomRectanglesFromPartition(randomlyChosenIndices, numRectanglesToBeCovered, numRectangles);  
     
+    set<int> randomlyChosenRectangleIDs;
+
     for (int i = 0; i < numRectangles; i++) {
         int rectangleID;
         int numVertices;
         inputFile >> rectangleID >> numVertices;
 
-        bool rectangleIsInPartitionSubset = randomlyChosenRectangleIDs.contains(rectangleID);
+        bool rectangleIsInPartitionSubset = randomlyChosenIndices.contains(i);
+        
+        if (rectangleIsInPartitionSubset) {
+            randomlyChosenRectangleIDs.insert(rectangleID);
+        }
 
         for (int j = 0; j < numVertices; j++) {
             int x, y;
@@ -142,6 +145,10 @@ void processCurrentInstanceInputs(istream &inputFile, int& numRectangles, int& n
             }
         }
     }
+
+    if (numRectanglesToBeCovered != numRectangles) {
+        printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
+    }    
 }
 
 Vertex rectanglesVertexWithHighestDegree(int rectangleID, const map<int, set<Vertex>>& rectangleBoundaryVertices, const map<Vertex, int>& vertexOutDegree) {

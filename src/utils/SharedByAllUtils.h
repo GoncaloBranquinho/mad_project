@@ -40,25 +40,14 @@ class Vertex {
 };
 
 void printNumInstancesToConsider(int numInstances);
-
 void printCurrentInstanceNumber(int currentInstance);
-
 void getOutputFileNameInput(string& fileName, string defaultOutputFileName);
-
 string printSavePartitionToOutputFileNameMenu(string& fileName);
-
 void savePartitionToOutputFile(int& numInstancesAddedToOutputFile, string& fileName, const map<int, set<Vertex>>& rectangleBoundaryVertices);
-
 void printMinimumNumberOfGuardsRequired(int minNumGuardsRequired);
-
 void insertAtBegginingNumInstancesAddedToOutputFile(int numInstancesAddedToOutputFile, string& fileName);
-
 void printPercentageOfRectanglesInConsideration(float percentageToCover, int numRectanglesToBeCovered, int numRectangles);
-
 void printPercentageToCoverInputMessage();
-
 float getInputPercentageIfValidOrDefault100();
-
-void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, int numRectanglesToBeCovered, int numRectangles);
-
+void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenIndices, int numRectanglesToBeCovered, int numRectangles);
 void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs);

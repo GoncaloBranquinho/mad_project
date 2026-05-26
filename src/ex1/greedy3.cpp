@@ -17,14 +17,14 @@ void solveAllInstances(istream &inputFile) {
         map<int, set<Vertex>> rectangleBoundaryVertices;
         map<Vertex, set<int>> rectanglesAtVertex;
         map<int, int> rectangleDegree;
+        map<int, bool> rectangleCovered;
         priority_queue<PairRectangleDegree> rectanglePriorityQueue;
         
         processCurrentInstanceInputs(inputFile, numRectangles, numRectanglesToBeCovered, rectangleBoundaryVertices, vertexOutDegree, rectanglesAtVertex);
-        initializeRectanglesDegreesAndPQ(rectangleBoundaryVertices, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
-        
+        initializeRectanglesDegreesAndPQ(rectangleCovered, rectangleBoundaryVertices, vertexOutDegree, rectangleDegree, rectanglePriorityQueue);
+
         int coveredRectangles = 0;
         int minNumGuardsRequired = 0;
-        vector<bool> rectangleCovered(numRectangles + 1);
 
         while (coveredRectangles != numRectanglesToBeCovered) {
             auto pairRectangleDegree = rectanglePriorityQueue.top(); rectanglePriorityQueue.pop();

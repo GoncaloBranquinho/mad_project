@@ -61,7 +61,7 @@ string printSavePartitionToOutputFileNameMenu(string& fileName) {
 
     if (input == "y") {
         if (fileName == "") {
-            getOutputFileNameInput(fileName, "modified_input");
+            getOutputFileNameInput(fileName, "modified-input");
         }
     }
 
@@ -160,11 +160,11 @@ float getInputPercentageIfValidOrDefault100() {
         return 100.0;
 }
 
-void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenRectangleIDs, int numRectanglesToBeCovered, int numRectangles) {
+void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenIndices, int numRectanglesToBeCovered, int numRectangles) {
     vector<int> rectangleIDs(numRectangles);
-    iota(rectangleIDs.begin(), rectangleIDs.end(), 1);
+    iota(rectangleIDs.begin(), rectangleIDs.end(), 0);
     shuffle(rectangleIDs.begin(), rectangleIDs.end(), mt19937(random_device{}()));
-    randomlyChosenRectangleIDs.insert(rectangleIDs.begin(), rectangleIDs.begin() + numRectanglesToBeCovered);
+    randomlyChosenIndices.insert(rectangleIDs.begin(), rectangleIDs.begin() + numRectanglesToBeCovered);
 }
 
 void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs) {
