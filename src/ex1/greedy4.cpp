@@ -23,7 +23,7 @@ void solveAllInstances(istream &inputFile) {
         int coveredRectangles = 0;
         int minNumGuardsRequired = 0;
 
-        Graph graph = Graph(numRectangles);
+        Graph graph = Graph();
         graph.initialize(rectangleBoundaryVertices, rectanglesAtVertex);
         initializePQ(graph, rectanglePriorityQueue);
 
@@ -57,7 +57,7 @@ void solveAllInstances(istream &inputFile) {
 
                 // 4. Officially place a guard in that vertex
                 minNumGuardsRequired++;
-                // print("\tPlacing guard in ({}, {})\n", bestVertex.first, bestVertex.second);
+                // print("\tPlacing guard in ({}, {})\n", bestVertex.x, bestVertex.y);
             }
         }
         printMinimumNumberOfGuardsRequired(minNumGuardsRequired);

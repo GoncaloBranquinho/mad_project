@@ -93,9 +93,9 @@ void processCurrentInstanceInputs(istream &inputFile, int& numRectangles, int& n
         }
     }
 
-    // if (numRectanglesToBeCovered != numRectangles) {
+    if (numRectanglesToBeCovered != numRectangles) {
         printAllRandomRectanglesChosenFromPartition(randomlyChosenRectangleIDs);
-    // } 
+    } 
 }
 
 void printAndOrSaveToFileIDsMappingToVertices(ofstream* outputModelSolutionFile, bool printToOutput, const map<int, Vertex>& idToVertex) {

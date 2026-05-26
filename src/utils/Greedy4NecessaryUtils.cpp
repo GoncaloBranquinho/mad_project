@@ -14,8 +14,9 @@ void printPQ(priority_queue<PairRectangleDegree> rectanglePriorityQueue) {
 }
 
 void initializePQ(const Graph& graph, priority_queue<PairRectangleDegree>& rectanglePriorityQueue) {
-    for (const auto& node: graph.nodes) {
-        const auto& nodeID = node.rectangleID;
+    for (const auto& entry: graph.nodes) {
+        const auto& node = entry.second;
+        const auto& nodeID = entry.first;
         const auto& nodeOutDegree = node.outDegree;
 
         if (nodeID != -1) {

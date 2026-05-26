@@ -60,6 +60,7 @@ void solveAllInstances(istream &inputFile) {
 
             if (currOutDegree[vertexCoords] == outDegree) { 
                 minNumGuardsRequired++;
+                // print("\tPlacing guard in ({}, {})\n", vertexCoords.x, vertexCoords.y);
 
                 for (const auto& rectangleID : rectanglesAtVertex[vertexCoords]) {
                     rectangleBoundaryVertices[rectangleID].erase(vertexCoords);

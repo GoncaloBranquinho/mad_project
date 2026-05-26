@@ -61,7 +61,7 @@ void solveAllInstances(istream &inputFile) {
 
                 // 5. Officially place a guard in that vertex
                 minNumGuardsRequired++;
-                // print("\tPlacing guard in ({}, {})\n", bestVertex.first, bestVertex.second);
+                // print("\tPlacing guard in ({}, {})\n", bestVertex.x, bestVertex.y);
             }
         }
         printMinimumNumberOfGuardsRequired(minNumGuardsRequired);
