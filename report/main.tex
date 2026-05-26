@@ -69,8 +69,8 @@ The implementation of the Integer Programming model utilizes the \texttt{MPSolve
 The implementation translates the mathematical formulation directly into code:
 \begin{itemize}
     \item \textbf{Variables:} Using \texttt{solver->MakeIntVar(0.0, 1.0, name)}, boolean decision variables $v_i$ are instantiated for each candidate vertex in the problem space.
-    \item \textbf{Constraints:} For each rectangle, a row constraint is created via \texttt{solver->MakeRowConstraint(1.0, solver->infinity())}. The variables corresponding to the vertices incident to that rectangle are assigned a coefficient of 1. This enforces the condition $\sum_{i=1}^{n} v_i \times p_{ij} \ge 1$.
-    \item \textbf{Objective Function:} The objective function is defined by setting the coefficient of every vertex variable to 1 and invoking \texttt{objective->SetMinimization()} to ensure the solver finds the minimum set of guards.
+    \item \textbf{Constraints:} For each rectangle, a row constraint is created via \texttt{solver->\allowbreak\ MakeRowConstraint(1.0, solver->infinity())}. The variables corresponding to the vertices incident to that rectangle are assigned a coefficient of 1. This enforces the condition $\sum_{i=1}^{n} v_i \times p_{ij} \ge 1$.
+    \item \textbf{Objective Function:} The objective function is defined by setting the coefficient of every vertex variable to 1 and invoking \texttt{objective->SetMinimi\allowbreak\ zation()} to ensure the solver finds the minimum set of guards.
 \end{itemize}
 
 Additionally, to improve solver performance by reducing the search space, a theoretical lower bound for the number of guards needed (e.g., $\lceil m / 3 \rceil$, where $m$ is the number of rectangles to be covered) is calculated and added as a global row constraint. This prevents the solver from evaluating unfeasible sub-optimal branches.
@@ -251,7 +251,7 @@ The model construction follows a two-phase approach based on the implementation:
 \begin{enumerate}
     \item \textbf{Guard Placement (Phase 1):}
     \begin{itemize}
-        \item \textbf{Variables:} The decision variables $v_i$ are initialized using \texttt{cp\_model.NewIntVar(domain)}, strictly bounded to a domain of $\{0, 1\}$.
+        \item \textbf{Variables:} The decision variables $v_i$ are initialized using \texttt{cp\_model.N\allowbreak\ ewIntVar(domain)}, strictly bounded to a domain of $\{0, 1\}$.
         \item \textbf{Constraints:} The coverage constraints are constructed using linear expressions (\texttt{LinearExpr}). For each rectangle, the boolean variables of its incident vertices are summed, and the constraint is strictly enforced using \texttt{cp\_model.AddGreaterOrEqual(expr, 1)}.
         \item \textbf{Objective:} The objective is defined as minimizing the sum of all $v_i$ variables via \texttt{cp\_model.Minimize(expr)}.
     \end{itemize}
@@ -260,7 +260,7 @@ The model construction follows a two-phase approach based on the implementation:
     Once the first phase determines the optimal minimum number of guards, a secondary solver instance is invoked to solve an assignment problem (e.g., assigning distinct frequencies or shifts), effectively minimizing the chromatic number of the placed guards.
     \begin{itemize}
         \item \textbf{Variables:} The model introduces a boolean array $c_j$ indicating whether a color $j$ is utilized, and a 2D matrix $u_{i,j}$ mapping vertex $i$ to color $j$.
-        \item \textbf{Constraints:} The constraints ensure that the total number of placed guards strictly equals the optimal solution found in Phase 1 (\texttt{AddEquality(expr, sol)}), and bounds the color assignment variables to logically link the mapping $u_{i,j}$ with the active colors $c_j$.
+        \item \textbf{Constraints:} The constraints ensure that the total number of placed guards strictly equals the optimal solution found in Phase 1 (\texttt{AddEqua\allowbreak\ lity(expr, sol)}), and bounds the color assignment variables to logically link the mapping $u_{i,j}$ with the active colors $c_j$.
         \item \textbf{Objective:} The goal transitions to minimizing the sum of the color variables $c_j$.
     \end{itemize}
 \end{enumerate}
@@ -269,7 +269,58 @@ The models are compiled and solved using \texttt{Solve(cp\_model.Build())}. The 
 
 
 \chapter{Extensions}
+In this chapter, an extension of the original problem is presented. 
+Given the minimum number of guards required to cover all rectangles, the objective is to assign colours to the guards such that guards covering the same rectangle have different colours, while minimising the total number of colours used.
 
+This problem belongs to the class of multi-objective optimisation problems, since the objective is to minimise both the number of guards used and the number of colours used. This finding suggests that one minimization is considerably more significant than the other. It is therefore proposed that a weighted-sum method be employed. However, following a review of the relevant online literature, it became apparent that proving the veracity of our model and defining a weight for each constraint would be a challenge. Consequently, a sequential optimisation method was employed, whereby multiple objectives were transformed into single-objective sub-problems. The first objective was the minimisation of the guards, and the second was the minimisation of the colours, with an additional restriction that the number of guards used must be equal to the minimum found in the previous model. 
+
+The first optimisation problem, concerning the minimisation of the number of guards, was presented in the previous chapters. Consequently, the present chapter is exclusively concerned with the second optimisation problem.
+
+Let $m$ be the number of rectangles to cover, $n$ the number of vertices, $s$ the number of guards to use and $z$ be the maximum number of vertices of any single rectangle. Let
+
+\[
+p_{ij} =
+\begin{cases}
+1, & \text{if rectangle } j \text{ is incident to vertex } i \\
+0, & \text{otherwise}
+\end{cases}
+\]
+
+The decision variables are defined as follows:
+
+\begin{itemize}
+    \item $v_i$ indicates if vertex $i$ contains a guard;
+    \item $u_{ij}$ indicates if vertex $i$ has color $j$;
+    \item $c_j$ indicates if color $j$ is used.
+\end{itemize}
+
+The objective is to minimize the number of guard types used:
+
+\[
+\min \sum_{i = 1}^{z} c_i
+\]
+
+subject to the following constraints:
+
+\[
+\begin{cases}
+	\sum_{i = 1}^{n} v_i \times p_{ij} \ge 1, \quad \forall j = 1,2,\dots,m \\
+	\sum_{i = 1}^{n} v_i = s \\
+	\sum_{j = 1}^{z} u_{ij} = v_i, \quad \forall i = 1,2,\dots,n \\
+	\sum_{i = 1}^{n} u_{ij} \ge c_j, \quad \forall j = 1,2,\dots, z \\
+	\sum_{i = 1}^{n} p_{ir} \times u_{ik} \le 1, \quad \forall r = 1,2,\dots,m,\ \forall k = 1,2,\dots,z \\
+	u_{ij} \le c_j, \quad \forall i = 1,2,\dots,n,\ \forall j = 1,2,\dots,z \\
+	v_i \in \{0,1\}, \quad \forall i = 1,2,\dots,n \\
+	u_{ij} \in \{0,1\}, \quad \forall i = 1,2,\dots,n,\ \forall j = 1,2,\dots,z \\
+	c_i \in \{0,1\}, \quad \forall i = 1,2,\dots,z \\
+\end{cases}
+\]
+
+The first constraint guarantees that every rectangle is covered. 
+The second constraint ensures that exactly $s$ guards are used. 
+The third constraint associates each selected vertex with only one color. 
+The fourth and sixth constraints establish if a color is used or not. 
+Finally, the fifth constraint ensures that no rectangle is covered by more than one guard of the same color.
 \chapter{Conclusion}
 
 % \printbibliography
