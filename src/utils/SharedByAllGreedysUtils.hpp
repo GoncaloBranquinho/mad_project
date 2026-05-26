@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SharedByAllUtils.h"
+#include "SharedByAllUtils.hpp"
 
 // only used by greedy3.cpp, greedy3v2.cpp and greedy4.cpp but unnecessary to create a file just for this
 class PairRectangleDegree {

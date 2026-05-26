@@ -1,4 +1,4 @@
-#include "Greedy4NecessaryUtils.h"
+#include "Greedy4NecessaryUtils.hpp"
 
 void printPQ(priority_queue<PairRectangleDegree> rectanglePriorityQueue) {
     int counter = 1;

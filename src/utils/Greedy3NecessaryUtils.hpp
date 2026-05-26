@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SharedByAllGreedysUtils.h"
+#include "SharedByAllGreedysUtils.hpp"
 
 void printAllRectanglesDegrees(const map<int, int>& rectangleDegree);
 void calculateWhichRectanglesToUpdate(set<int>& rectanglesToUpdate, const set<Vertex>& affectedVertices, const map<Vertex, set<int>>& rectanglesAtVertex, const map<int, bool>& rectangleCovered);

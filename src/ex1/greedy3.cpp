@@ -1,4 +1,4 @@
-#include "../utils/Greedy3NecessaryUtils.h"
+#include "../utils/Greedy3NecessaryUtils.hpp"
 
 void solveAllInstances(istream &inputFile) {
     int numInstances;

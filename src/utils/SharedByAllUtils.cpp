@@ -1,4 +1,4 @@
-#include "SharedByAllUtils.h"
+#include "SharedByAllUtils.hpp"
 
 string pathToFolderContainingFile = "../../inputs/input-files/";
 bool alreadyExistingFile = false;

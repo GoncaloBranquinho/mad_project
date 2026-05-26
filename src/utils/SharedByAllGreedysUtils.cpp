@@ -1,4 +1,4 @@
-#include "SharedByAllGreedysUtils.h"
+#include "SharedByAllGreedysUtils.hpp"
 
 void printAllVerticesOutDegrees(const map<Vertex, int>& vertexOutDegree) {
     print("\n\tDegree associated to each vertex (number of rectangles it is in conctact with)\n");

@@ -1,4 +1,4 @@
-#include "Greedy3v2NecessaryUtils.h"
+#include "Greedy3v2NecessaryUtils.hpp"
 
 void printAllRectanglesDegrees(const map<int, set<int>>& rectangleDegree) {
     print("\n\tDegree associated to each rectangle (number of different rectangles it is in contact with / shares vertices with)\n");

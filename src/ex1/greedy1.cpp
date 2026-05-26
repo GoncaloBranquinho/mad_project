@@ -1,4 +1,4 @@
-#include "../utils/SharedByAllGreedysUtils.h"
+#include "../utils/SharedByAllGreedysUtils.hpp"
 
 class VertexWithOutDegree {
     public:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SharedByAllGreedysUtils.h"
+#include "SharedByAllGreedysUtils.hpp"
 
 class Node {
     public:

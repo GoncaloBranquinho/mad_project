@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SharedByAllUtils.h"
+#include "SharedByAllUtils.hpp"
 
 void printVerticesSet(const set<Vertex>& verticesSet);
 void printIDsToVertices(const map<int, Vertex>& idToVertex);
