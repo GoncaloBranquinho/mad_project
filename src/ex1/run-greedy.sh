@@ -25,11 +25,7 @@ else
 
         printf "Compiling $Greedy.cpp, please wait... "
         
-        if [ "$greedyVersion" == "1" ]; then
-            g++ -O3 -std=c++23 "$Greedy.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $Greedy
-        else
-            g++ -O3 -std=c++23 "$Greedy.cpp" "../utils/Greedy"$greedyVersion"NecessaryUtils.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $Greedy
-        fi
+        g++ -O3 -std=c++23 "$Greedy.cpp" "../utils/Greedy"$greedyVersion"NecessaryUtils.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $Greedy
 
         printf "\n"
         ./"$Greedy" $fullPathToInputFile
