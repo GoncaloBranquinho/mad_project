@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <print>
 
+
 using namespace std;
 
 class Vertex {
@@ -51,3 +52,4 @@ void printPercentageToCoverInputMessage();
 float getInputPercentageIfValidOrDefault100();
 void chooseRandomRectanglesFromPartition(set<int>& randomlyChosenIndices, int numRectanglesToBeCovered, int numRectangles);
 void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenRectangleIDs);
+string chooseRandomPrintColor();

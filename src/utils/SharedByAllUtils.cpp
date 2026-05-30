@@ -103,7 +103,10 @@ void savePartitionToOutputFile(int& numInstancesAddedToOutputFile, string& fileN
 }
 
 void printMinimumNumberOfGuardsRequired(int minNumGuardsRequired) {
-    print("\tMinimum number of guards required: {}\n\n", minNumGuardsRequired);
+    string color = chooseRandomPrintColor();
+    string resetColor = "\033[0m";
+
+    print("\t{}Minimum number of guards required: {}{}\n\n", color, minNumGuardsRequired, resetColor);
 }
 
 void insertAtBegginingNumInstancesAddedToOutputFile(int numInstancesAddedToOutputFile, string& fileName) {
@@ -189,4 +192,19 @@ void printAllRandomRectanglesChosenFromPartition(const set<int>& randomlyChosenR
 
         print("}}\n");
     }
+}
+
+string chooseRandomPrintColor() {
+    vector<string> colors = {
+        "\033[31m", // red
+        "\033[32m", // green
+        "\033[33m", // yellow
+        "\033[34m", // blue
+        "\033[35m", // magenta
+        "\033[36m"  // cyan
+    };
+    
+    static mt19937 rng{random_device{}()};
+    static uniform_int_distribution<size_t> dist(0, colors.size() - 1);
+    return colors[dist(rng)];
 }
