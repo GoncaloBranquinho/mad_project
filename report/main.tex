@@ -1,10 +1,17 @@
-\pdfminorversion=4
-\documentclass[]{article}
-\usepackage[utf8]{inputenc}
-\usepackage{amssymb,latexsym,amsmath}
-\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
-\usepackage{graphicx}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\documentclass{report}
+
+\usepackage{biblatex}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage[bottom]{footmisc}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+
+\setlength{\parskip}{\bigskipamount}
+
 \begin{document}
 
 
@@ -17,7 +24,7 @@ In this report, a geometric coverage problem is presented and solved using vario
 
 Subsequently, an extension to this baseline problem is explored. In practical contexts, guards may represent resources that require differentiation, preventing interference or scheduling conflicts. Therefore, a secondary objective is introduced, which consists of assigning a color to each placed guard such that no rectangle is covered by more than one guard of the same color, while minimizing the total number of colours utilized. This formulation effectively transforms the problem into a multi-objective optimization problem.
 
-The following chapters establish the mathematical formulations using Greedy Approaches, Integer Programming, and Constraint Programming. Then, the implementation of these approaches using Google OR-Tools and an independent search method maintaining arc-consistency with AC-3 is described. Finally, the multi-objective extension is formulated and solved using a sequential optimization method.
+The following chapters establish mathematical formulations using Greedy Approaches, Integer Programming, and Constraint Programming. Then, the implementation of these approaches using Google OR-Tools and an independent search method maintaining arc-consistency with AC-3 is described. Finally, the multi-objective extension is formulated and solved using a sequential optimization method. 
 
 \section{Objectives}
 The primary objectives of this report are defined as follows:
@@ -72,12 +79,12 @@ The implementation of the Integer Programming model utilizes the \texttt{MPSolve
 
 The implementation translates the mathematical formulation directly into C++ code:
 \begin{itemize}
-    \item \textbf{Variables:} Using \texttt{solver->MakeIntVar(0.0, 1.0, varName)}, boolean decision variables $x_i$ are instantiated for each candidate vertex in the problem space.
-    \item \textbf{Constraints:} For each rectangle, a row constraint is created via \texttt{solver->\allowbreak MakeRowConstraint(1.0, inf)}. The variables corresponding to the vertices incident to that rectangle are assigned a coefficient of 1. This enforces the condition $\sum_{i=1}^{n} x_i \times p_{ij} \ge 1$.
-    \item \textbf{Objective Function:} The objective function is defined by setting the coefficient of every vertex variable to 1 via \texttt{objective->SetCoefficient(x[i], 1)} and invoking \texttt{objective->SetMinimization()} to ensure the solver finds the minimum set of guards.
+    \item \textbf{Variables:} Using solver$\to$MakeIntVar(0.0, 1.0, varName), boolean decision variables $x_i$ are instantiated for each candidate vertex in the problem space.
+    \item \textbf{Constraints:} For each rectangle, a row constraint is created via solver$\to$ MakeRowConstraint(1.0, inf). The variables corresponding to the vertices incident to that rectangle are assigned a coefficient of 1. This enforces the condition $\sum_{i=1}^{n} x_i \times p_{ij} \ge 1$.
+    \item \textbf{Objective Function:} The objective function is defined by setting the coefficient of every vertex variable to 1 via objective$\to$SetCoefficient(x[i], 1) and invoking objective$\to$SetMinimization() to ensure the solver finds the minimum set of guards.
 \end{itemize}
 
-Additionally, to improve solver performance by reducing the search space, a theoretical lower bound for the number of guards needed is calculated. Specifically, a bound of $\lceil m / 3 \rceil - 1$ (where $m$ is the number of rectangles to be covered) is computed and added as a global row constraint via \texttt{solver->MakeRowConstraint(solutionLowerbound - 1, inf)}. This prevents the solver from evaluating unfeasible sub-optimal branches.
+Additionally, to improve solver performance by reducing the search space, a theoretical lower bound for the number of guards needed is calculated. Specifically, a bound of $\lceil m / 3 \rceil - 1$ (where $m$ is the number of rectangles to be covered) is computed and added as a global row constraint via solver$\to$MakeRowConstraint\allowbreak (solutionLowerbound - 1, inf). This prevents the solver from evaluating unfeasible sub-optimal branches.
 
 \chapter{Constraint Programming}
 % update
@@ -253,9 +260,9 @@ To implement the Constraint Optimization Problem, the OR-Tools CP-SAT solver is 
 
 In accordance with the base problem formulation, the model construction focuses solely on the optimal placement of guards:
 \begin{itemize}
-    \item \textbf{Variables:} The decision variables $v_i$ are initialized using \texttt{cp\_model.NewIntVar(0, 1, name)}, strictly bounding the domain of each candidate vertex to $\{0, 1\}$.
-    \item \textbf{Constraints:} The coverage constraints are constructed using linear expressions (\texttt{LinearExpr}). For each rectangle, the boolean variables of its incident vertices are summed. The constraint is then strictly enforced using \texttt{cp\_model.AddGreaterOrEqual(expr, 1)}, ensuring every rectangle is covered by at least one guard.
-    \item \textbf{Objective:} The objective is defined as minimizing the total number of placed guards. This is achieved by summing all $v_i$ variables and applying \texttt{cp\_model.Minimize(expr)}.
+    \item \textbf{Variables:} The decision variables $v_i$ are initialized using cp\_model.NewIn\allowbreak tVar(0, 1, name), strictly bounding the domain of each candidate vertex to $\{0, 1\}$.
+    \item \textbf{Constraints:} The coverage constraints are constructed using linear expressions (\texttt{LinearExpr}). For each rectangle, the boolean variables of its incident vertices are summed. The constraint is then strictly enforced using cp\_model.AddGreaterOrEqual(expr, 1), ensuring every rectangle is covered by at least one guard.
+    \item \textbf{Objective:} The objective is defined as minimizing the total number of placed guards. This is achieved by summing all $v_i$ variables and applying cp\_model.Minimize(expr).
 \end{itemize}
 
 The model is compiled and solved using \texttt{Solve(cp\_model.Build())}. The solver returns a \texttt{CpSolverResponse}, which yields the optimal geometric configuration of guards that minimizes the total count. The problem of assigning colors to these guards is treated separately as an extension in the subsequent chapters.
@@ -268,7 +275,7 @@ This problem belongs to the class of multi-objective optimisation problems, sinc
 
 The first optimisation problem, concerning the minimisation of the number of guards, was presented in the previous chapters. Consequently, the present chapter is exclusively concerned with the second optimisation problem.
 
-Let $m$ be the number of rectangles to cover, $n$ the number of vertices, $s$ the number of guards to use and $z$ be the maximum number of vertices of any single rectangle. Let
+Let $m$ be the number of rectangles to cover, $n$ the number of vertices, $s$ the number of guards to use and $z$ be the maximum number of colors, that is, $n$. Let
 
 $$
 p_{ij} =
