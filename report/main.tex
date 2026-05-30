@@ -222,7 +222,7 @@ The following pseudocode describes the backtracking algorithm:
 
 \end{algorithmic}
 
-As AC-3 and backtracking only determine the existence of a feasible solution within a given bound, an additional optimisation strategy is required to minimise the objective function. Thefore,  we perform a binary search over the objective value. Let k be an upper bound on the number of selected vertices. A new constraint is temporarily added to the CPO. 
+As AC-3 and backtracking only determine the existence of a feasible solution within a given bound, an additional optimisation strategy is required to minimise the objective function. Thefore,  we perform a binary search over the objective value. Let $m$ be the upper bound for the number of selected vertices. A new constraint is temporarily added to the CPO. 
 
 If no solution is found, the lower bound variable is updated. Otherwise, a feasible solution has been found and the upper bound variable can be reduced. This process continues until the optimal value is identified. At the end, the optimal value is stored in the lower bound variable $l$.
 
@@ -265,10 +265,12 @@ In accordance with the base problem formulation, the model construction focuses 
     \item \textbf{Objective:} The objective is defined as minimizing the total number of placed guards. This is achieved by summing all $v_i$ variables and applying cp\_model.Minimize(expr).
 \end{itemize}
 
-The model is compiled and solved using \texttt{Solve(cp\_model.Build())}. The solver returns a \texttt{CpSolverResponse}, which yields the optimal geometric configuration of guards that minimizes the total count. The problem of assigning colors to these guards is treated separately as an extension in the subsequent chapters.
+The model is compiled and solved using \texttt{Solve(cp\_model.Build())}. The solver returns a \texttt{CpSolverResponse}, which yields the optimal geometric configuration of guards that minimizes the total count.
 
 \chapter{Extensions}
-In this chapter, an extension of the original problem is presented. 
+In this chapter, two extensions of the original problem are presented. 
+
+\section{Coloring}
 Given the minimum number of guards required to cover all rectangles, the objective is to assign colours to the guards such that guards covering the same rectangle have different colours, while minimising the total number of colours used.
 
 This problem belongs to the class of multi-objective optimisation problems, since the objective is to minimise both the number of guards used and the number of colours used. This finding suggests that one minimization is considerably more significant than the other. It is therefore proposed that a weighted-sum method be employed. However, following a review of the relevant online literature, it became apparent that proving the veracity of our model and defining a weight for each constraint would be a challenge. Consequently, a sequential optimisation method was employed, whereby multiple objectives were transformed into single-objective sub-problems. The first objective was the minimisation of the guards, and the second was the minimisation of the colours, with an additional restriction that the number of guards used must be equal to the minimum found in the previous model. 
@@ -320,6 +322,45 @@ The second constraint ensures that exactly $s$ guards are used.
 The third constraint associates each selected vertex with only one color. 
 The fourth and sixth constraints establish if a color is used or not. 
 Finally, the fifth constraint ensures that no rectangle is covered by more than one guard of the same color.
+
+\section{Extended Visibility}
+
+This extension is highly similar to the original problem, yet a guard may cover adjacent rectangles up to a distance D.
+
+Let $m$ be the number of rectangles to cover, $n$ the number of vertices, $D$ the maximum distance and $d_{ij}$ the minimum distance for vertex $i$ to rectangle $j$. Let
+
+$$
+p_{ij} =
+\begin{cases}
+  1, & \text{if } d_{ij} \le D\\
+0, & \text{otherwise}
+\end{cases}
+$$
+
+$d_{ij}$ can easily be computed as follows: 
+
+For each vertex i, the search is initialized with all rectangles incident to i, which form the rectangles at distance 0. Subsequently, a BFS is performed over the rectangle adjacency graph, giving us the minimum distance from vertex i to every rectangle j.
+
+The decision variables are defined as follows:
+
+\begin{itemize}
+    \item $v_i$ indicates if vertex $i$ contains a guard;
+\end{itemize}
+
+The objective is to minimize the total number of guards:
+
+\[\sum_{i = 1}^{n} v_{i}\]
+
+subject to the following constraints:
+
+\[
+\begin{cases}
+	\sum_{i = 1}^{n} v_{i} \times p_{ij} \ge 1, \quad \forall j = 1,2,\dots,m \\
+	v_{i} \in \{0,1\}, \quad \forall i = 1,2,\dots,n                          \\
+\end{cases}
+\]
+
+
 \chapter{Conclusion}
 
 % \printbibliography
