@@ -1,3 +1,0 @@
-/home/santos/code/mad_project/src2/or-tools/my_ortools_test/build/CMakeFiles/test.dir
-/home/santos/code/mad_project/src2/or-tools/my_ortools_test/build/CMakeFiles/edit_cache.dir
-/home/santos/code/mad_project/src2/or-tools/my_ortools_test/build/CMakeFiles/rebuild_cache.dir
