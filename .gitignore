@@ -1,3 +1,10 @@
 bin/
 *.o
 src/ex2/build/
+report/main.aux
+report/main.bcf
+report/main.out
+report/main.fdb_latexmk
+report/main.fls
+report/main.log
+report/main.syntectex

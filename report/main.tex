@@ -8,7 +8,8 @@
 \usepackage{enumitem}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-
+\usepackage{graphicx}
+\usepackage{xcolor}
 
 \setlength{\parskip}{\bigskipamount}
 
@@ -16,7 +17,29 @@
 
 
 
-\tableofcontents
+
+
+\vspace*{2cm}
+
+{\noindent\Huge\textbf{Rectangle Partition Coverage}}
+
+
+\begin{center}
+
+\vspace{0.5cm}
+
+{\Large Approaches to Rectangle Coverage Optimization}
+
+\vspace{12cm}
+
+{\large Gonçalo Branquinho \\ Gustavo dos Santos \\ André Sousa}
+\end{center}
+
+\vspace{1cm}
+
+
+
+
 
 \chapter{Introduction}
 
@@ -25,6 +48,8 @@ In this report, a geometric coverage problem is presented and solved using vario
 Subsequently, an extension to this baseline problem is explored. In practical contexts, guards may represent resources that require differentiation, preventing interference or scheduling conflicts. Therefore, a secondary objective is introduced, which consists of assigning a color to each placed guard such that no rectangle is covered by more than one guard of the same color, while minimizing the total number of colours utilized. This formulation effectively transforms the problem into a multi-objective optimization problem.
 
 The following chapters establish mathematical formulations using Greedy Approaches, Integer Programming, and Constraint Programming. Then, the implementation of these approaches using Google OR-Tools and an independent search method maintaining arc-consistency with AC-3 is described. Finally, the multi-objective extension is formulated and solved using a sequential optimization method. 
+
+\pagebreak
 
 \section{Objectives}
 The primary objectives of this report are defined as follows:
@@ -38,9 +63,135 @@ The primary objectives of this report are defined as follows:
 \end{enumerate}
 
 
+
+
+%------------------------------------------------------------------------------------
 \chapter{Greedy Approaches}
 
-\section{Analysis}
+In this chapter, we present all of our greedy approaches and provide a comparative analysis of their performance both among themselves and against the optimal solution.
+
+\section{Approaches}
+
+\noindent Before presenting the approaches, it is necessary to introduce two key underlying concepts shared by most of our greedy algorithms: vertex degree and rectangle degree updating. Note that rectangle degree updating is only used in \textbf{Greedy3.cpp}, \textbf{Greedy3v2.cpp}, and \textbf{Greedy4.cpp}. 
+
+\noindent Regarding vertex degree, it is simply defined as the number of rectangles to which a vertex is incident.
+
+\noindent Regarding vertex and rectangle degree update, considering the following image of a random subset of rectangles of an entire a partition (orange borders), supposing the green vertex is selected, then the rectangles that vertex is incident to will be covered (green as well). With that being said, only the vertices and rectangles that are in direct contact with the now covered green rectangles (including the selected vertex) will need to be correctly updated, that is, have their degre decremented (all displayed as blue). 
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{1-Vertex_Degree_Rectangle_Degree.png}
+\end{figure}
+
+
+\noindent \textbf{Greedy1.cpp:} Our first approach consists of iteratively placing guards on the most impactful vertices, i.e., those that cover the largest number of rectangles, with the goal of minimizing the total number of guards required to cover the entire partition. To achieve this, during input processing, we associate a degree with each vertex, corresponding to the number of rectangles to which it is incident $(1 \leq \text{degree} \leq 3)$. After computing all vertex degrees, we insert them into a priority queue and repeatedly extract the top element, which corresponds to the vertex covering the most rectangles (breaking ties using a custom comparator based on vertex coordinates). Each extracted vertex is then assigned a guard and the adjacent vertices are updated accordingly. This process is repeated until all rectangles are covered.
+
+\vspace{1.5mm}
+
+\noindent \textbf{Greedy2.cpp:} Our second approach is the inverse of the first one. Instead of iteratively placing guards on vertices with the highest degree extracted from a priority queue, we begin by assuming that all vertices have a guard assigned initially and then iteratively remove guards from vertices with the lowest degree. This process continues until no further guard can be removed without leaving at least one rectangle uncovered.
+
+\vspace{5mm}
+
+\noindent Our subsequent approach, and the two that followed, were based on observations from the first algorithm. We noticed that certain “isolated” rectangles tended to be covered later in the process, which often led to poor and inefficient guard placement decisions. To address this, we shifted the perspective from vertex-based degree prioritization to rectangle-based degree prioritization.
+
+\noindent Intuitively, less “isolated” rectangles were more likely to be covered through well-chosen vertices, as they either shared more vertices or were incident to higher-degree vertices. In contrast, more “isolated” rectangles were less flexible and therefore more likely to constrain future decisions if not handled early. This motivated prioritizing lower-degree rectangles earlier in the selection process.
+
+\noindent The concept of “isolation” is directly related to a rectangle’s degree and may vary depending on the heuristic being applied. In this context, the degree of a rectangle can be defined in one of the following ways:
+\begin{enumerate}
+    \item The sum of the degrees of its incident \textbf{shared} vertices, i.e., vertices whose degree $\neq 1$.
+    \item The number of \textbf{distinct} rectangles with which it shares vertices.
+\end{enumerate}
+
+\noindent Regardless of the approach, once the most isolated rectangle is selected, we aim to maximize coverage by choosing its incident vertex with the highest degree. In case of a tie, the rectangle with the lowest identifier is chosen.
+
+\vspace{1.5mm}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{2-Heuristics.png}
+\end{figure}
+
+\vspace{1.5mm}
+
+\noindent \textbf{Greedy3.cpp:} Our third approach implements the idea described above and is based on heuristic 1. During input processing, we associate a degree with each vertex and each rectangle. We then insert pairs of (rectangleID, rectangleDegree) into a priority queue and repeatedly extract the top element, corresponding to the most “isolated” rectangle. For each selected rectangle, we choose the incident vertex with the highest degree (i.e., the one covering the most rectangles), place a guard there, and update the degrees of the remaining vertices and rectangles accordingly. This process is repeated until all rectangles are covered.
+
+\vspace{1.5mm}
+
+\noindent \textbf{Greedy3v2.cpp:} The second version of our third approach follows the same structure as the previous one and also implements the idea described above. The only difference is that it is based on heuristic 2, where, instead of defining the rectangle degree as the sum of the degrees of its shared vertices, it is defined as the number of rectangles with which it is in direct contact. Apart from this change, the algorithm remains identical to the previous version and terminates once all rectangles are covered. This algorithm serves as a bridge between \textbf{Greedy3.cpp} and \textbf{Greedy4.cpp}, as it shares the same algorithmic structure as \textbf{Greedy3.cpp} while using the same heuristic as \textbf{Greedy4.cpp}. 
+
+\vspace{1.5mm}
+
+\noindent \textbf{Greedy4.cpp:} Our fourth and final algorithm models the rectangle partition as a graph, where nodes (rectangles) are connected by bidirectional edges if they are in direct contact. This approach still follows the idea of heuristic 2 and works similarly to \textbf{Greedy3v2.cpp}, but with an explicit graph structure. It continues to prioritize rectangles with the lowest degree, and upon selecting one, chooses its incident vertex with the highest degree. The key difference is in the update step: after selecting a vertex, edges between rectangles incident to that vertex are preserved, while all edges between those rectangles and any other rectangles not incident to the selected vertex are removed.
+
+\vspace{1.5mm}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{3p1-Graph.png}
+\end{figure}
+
+\vspace{1.5mm}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{3p2-Graph.png}
+\end{figure}
+
+\section{Comparative Analysis}
+
+\renewcommand{\arraystretch}{2}
+
+\begin{center}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Inp.\textbackslash{}Alg. & Greedy1.cpp & Greedy2.cpp & Greedy3.cpp & Greedy3v2.cpp & Greedy4.cpp & Optimal (OR-Tools) \\
+\hline
+input-1-5 & 3 & 2 & 2 & 2 & 2 & 2 \\
+\hline
+input-1-10 & 4 & 4 & 4 & 4 & 4 & 4 \\
+\hline
+input-1-15 & 7 & 6 & 6 & 6 & 6 & 6 \\
+\hline
+input-1-30 & 13 & 12 & 12 & 12 & 12 & 12 \\
+\hline
+input-1-50 & 20 & 20 & 19 & 19 & 19 & 18 \\
+\hline
+input-1-100 & 43 & 41 & 36 & 36 & 36 & 36 \\
+\hline
+input-1-250 & 100 & 101 & 90 & 90 & 90 & 89 \\
+\hline
+input-1-500 & 197 & 197 & 182 & 182 & 182 & 175 \\
+\hline
+input-1-1000 & 397 & 393 & 357 & 357 & 357 & 343 \\
+\hline
+input-1-5000 & 1967 & 1972 & 1799 & 1799 & 1799 & 1729 \\
+\hline
+input-1-50000 & 19794 & 19874 & 18040 & 18045 & 18045 & 17352 \\
+\hline
+\end{tabular}
+}
+\end{center}
+
+\noindent Note that, for each input-x-y, we consider the entire set of rectangles in the partition (100\%), rather than a random subset. It is important to note that, x denotes the number of instances and y the number of rectangles in the partition. These input files are same included in the provided zip file.
+
+\noindent Regarding our first two algorithmic approaches, namely \textbf{Greedy1.cpp} and \textbf{Greedy2.cpp}, they produce similar results across all instances, with the most noticeable deviation occurring for inputs with 50,000 or more rectangles, where \textbf{Greedy1.cpp} yields slightly better results.
+
+\noindent Regarding the greedy algorithms that prioritize “isolated” rectangles, namely \textbf{Greedy3.cpp}, \textbf{Greedy3v2.cpp}, and \textbf{Greedy4.cpp}, they all produce better results than those obtained by the first two algorithmic approaches and closer to the optimal solution across all instances. They also consistently produce the same results between themselves. This was not unexpected, since they all share the same underlying principle, differing only in their heuristic definitions and implementation details. For the 50,000 rectangle input, there is a slight variation between \textbf{Greedy3.cpp} and \textbf{Greedy3v2.cpp} / \textbf{Greedy4.cpp}, which we attribute to minor implementation nuances rather than any actual improvement. Overall, these algorithms remain closely aligned in terms of performance and stay relatively close to the optimal solution obtained via our IP OR-Tools implementation, with the gap becoming more noticeable for larger instances (50,000+ rectangles). Still, from 500+ rectangles onwards, where deviations begin to become more evident, these three algorithms continue to exhibit very similar behaviour, consistently achieving an additional value of approximately 4\% compared to the optimal solution, computed as:
+
+\[
+\frac{\text{GreedySolution} - \text{OptimalSolution}}{\text{OptimalSolution}} \times 100
+\]
+
+\noindent Overall, the experimental results show a clear distinction between the different families of greedy approaches. The first two algorithms, \textbf{Greedy1.cpp} and \textbf{Greedy2.cpp}, produce similar results across all instances, with only minor differences appearing for larger inputs. In contrast, the approaches based on prioritizing “isolated” rectangles (\textbf{Greedy3.cpp}, \textbf{Greedy3v2.cpp}, and \textbf{Greedy4.cpp}) behave in a more consistent manner, both internally and across instances, and generally achieve better performance relative to the first two methods.
+
+\noindent This shows that shifting the focus from vertex-based heuristics to rectangle-based prioritization has a positive impact on solution quality and that in the second family the heuristic approach doesn't show much of a difference. In particular,
+
+\noindent However, despite these improvements, all greedy approaches remain consistently below the optimal solution obtained via our IP OR-Tools model. The performance gap becomes more pronounced as the size of the input increases, highlighting the limitations of greedy strategies for larger instances.
+
+\noindent
+%------------------------------------------------------------------------------------
 
 
 \chapter{Integer Programming}

@@ -1,4 +1,4 @@
-read -p "Type Greedy algorithm to run (1, 3, 3v2, 4): Greedy" greedyVersion
+read -p "Type Greedy algorithm to run (1, 2, 3, 3v2, 4): Greedy" greedyVersion
 Greedy="Greedy"$greedyVersion
 
 if [ ! -f "$Greedy.cpp" ]; then
@@ -23,9 +23,16 @@ else
             fi
         fi
 
-        printf "Compiling $Greedy.cpp, please wait... "
         
-        g++ -O3 -std=c++23 "$Greedy.cpp" "../utils/Greedy"$greedyVersion"NecessaryUtils.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $Greedy
+        if [ ! -f "$Greedy" ]; then 
+            printf "Compiling $Greedy.cpp, please wait... "
+
+            if [ "$greedyVersion" -eq "2" ]; then
+                g++ -O3 -std=c++23 "$Greedy.cpp" -o $Greedy
+            else
+                g++ -O3 -std=c++23 "$Greedy.cpp" "../utils/Greedy"$greedyVersion"NecessaryUtils.cpp" "../utils/SharedByAllGreedysUtils.cpp" "../utils/SharedByAllUtils.cpp" -o $Greedy
+            fi
+        fi
 
         printf "\n"
         ./"$Greedy" $fullPathToInputFile
