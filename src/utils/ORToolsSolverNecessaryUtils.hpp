@@ -1,6 +1,10 @@
 #pragma once
 
 #include "SharedByAllUtils.hpp"
+#include <memory>
+#include <cstdint>
+#include <stdexcept>
+#include <cmath>
 
 void printVerticesSet(const set<Vertex>& verticesSet);
 void printIDsToVertices(const map<int, Vertex>& idToVertex);

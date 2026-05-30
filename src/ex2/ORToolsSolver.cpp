@@ -1,11 +1,6 @@
 #include "ortools/linear_solver/linear_solver.h"
 #include "../utils/ORToolsSolverNecessaryUtils.hpp"
 
-#include <memory>
-#include <cstdint>
-#include <stdexcept>
-#include <cmath>
-
 using namespace operations_research;
 
 void solveAllInstances(istream &inputFile) {
