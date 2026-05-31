@@ -1,0 +1,3 @@
+/home/goncalo/Projects/mad_project/src/ex4/CP_SAT_a/build/CMakeFiles/main.dir
+/home/goncalo/Projects/mad_project/src/ex4/CP_SAT_a/build/CMakeFiles/edit_cache.dir
+/home/goncalo/Projects/mad_project/src/ex4/CP_SAT_a/build/CMakeFiles/rebuild_cache.dir
