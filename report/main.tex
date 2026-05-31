@@ -189,7 +189,7 @@ input-1-50000 & 19794 & 19874 & 18040 & 18045 & 18045 & 17352 \\
 
 \noindent Overall, the experimental results show a clear distinction between the different families of greedy approaches. The first two algorithms, \textbf{Greedy1.cpp} and \textbf{Greedy2.cpp}, produce similar results across all instances, with only minor differences appearing for larger inputs. In contrast, the approaches based on prioritizing “isolated” rectangles (\textbf{Greedy3.cpp}, \textbf{Greedy3v2.cpp}, and \textbf{Greedy4.c\allowbreak pp}) behave in a more consistent manner, both internally and across instances, and generally achieve better performance relative to the first two methods.
 
-\noindent This shows that shifting the focus from vertex-based heuristics to rectangle-based prioritization has a positive impact on solution quality and that in the second family the heuristic approach doesn't show much of a difference. In particular,
+\noindent This shows that shifting the focus from vertex-based heuristics to rectangle-based prioritization has a positive impact on solution quality and that in the second family the heuristic approach doesn't show much of a difference.
 
 \noindent However, despite these improvements, all greedy approaches remain consistently below the optimal solution obtained via our IP OR-Tools model. The performance gap becomes more pronounced as the size of the input increases, highlighting the limitations of greedy strategies for larger instances.
 
@@ -519,7 +519,7 @@ subject to the following constraints:
 
 The present report addressed the Rectangle Partition Coverage problem through multiple approaches, namely Greedy Algorithms, Integer Programming, and Constraint Programming. 
 
-The experimental evaluation demonstrated that simple greedy approaches based solely on vertex degree provide reasonably good solutions with very low computational cost. However, it was also demonstrated that these solutions remain noticeably distant from the optimum as instance sizes increase.
+The experimental evaluation demonstrated that simple greedy approaches based on rectangle degree provide reasonably good solutions with very low computational cost. However, it was also demonstrated that these solutions remain noticeably distant from the optimum as instance sizes increase.
 
 In order to obtain optimal solutions, Integer Programming and Constraint Programming formulations were developed. Both models capture the problem naturally through binary decision variables and coverage constraints. The OR-Tools implementations were successful in producing optimal solutions. Furthermore, a Constraint Programming solver was developed based on AC-3 and backtracking techniques. This case study demonstrates the application of consistency methods in the domain of combinatorial optimization problems. 
 
