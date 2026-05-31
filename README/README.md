@@ -10,8 +10,7 @@ If you encounter a `Permission denied` error when executing any script, run:
 chmod +x run-greedy.sh
 ```
 
-
----
+<br>
 
 ## Generate inputs files and images
 
@@ -19,12 +18,14 @@ The project already includes several input files (used in the report), along wit
 
 Additionally, the directory `inputs/generate-partitions-inputs-and-images/` provides a script  which allows you to generate new input files and their corresponding images. To create a new instance, simply run:
 
+
 ```
 ./create-and-preview-new-partition-input.sh
 ```
 
-The execution should look as follows:
 
+The execution should look as follows:
+<br></br>
 ![CreateInputs](CreateInputs.png)
 
 After running the script, you will be prompted with the following inputs:
@@ -33,7 +34,7 @@ After running the script, you will be prompted with the following inputs:
 3. **Preview generated input file** – Enter `y` if you wish to preview the generated partition and its corresponding image.
 
 
----
+<br>
 
 ## Exercise 1 - Greedy Algorithms
 
@@ -59,8 +60,7 @@ After running the script, you will be prompted with the following inputs:
 5. **Preview selected rectangles** – If a percentage different from 100% was chosen, you may enter `y` to preview the randomly selected subset. Otherwise, this option will not appear.
 6. **Save instance to file** – Option to save the current instance. This is particularly useful when working with a random subset, allowing you to reuse the same selection across different algorithms for comparison. During this process, a file with the name according to the user's input will be added under the `inputs/input-files/` directory to easen the process for step 2.
 
-
----
+<br>
 
 ## Exercise 2 - OR-Tools and AC-3 Algorithms
 
@@ -97,6 +97,6 @@ After running the script, you will be prompted with the following inputs:
 5. **Preview and / or save instance model** - Option to preview and / or save current instance model to a file. Useful to understand which variables and equations are being taken into consideration.
 6. **Save instance to file** – Option to save the current instance. This is particularly useful when working with a random subset, allowing you to reuse the same selection across different algorithms for comparison. During this process, a file with the name according to the user's input will be added under the `inputs/input-files/` directory to easen the process for step 2.
 
----
+<br>
 
 Regarding the remaining OR-Tools exercises ...
