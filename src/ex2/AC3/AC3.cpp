@@ -235,7 +235,7 @@ void solve(std::istream &f) {
     }
   }
 
-  std::cout << l << '\n';
+  std::cout << "Minimum number of guards required: " << l << '\n';
 }
 int main(int argc, char *argv[]) {
   std::ifstream f(argv[1]);
