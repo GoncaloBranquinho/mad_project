@@ -45,7 +45,9 @@
 
 In this report, a geometric coverage problem is presented and solved using various combinatorial optimization techniques. The problem consists of a set of rectangles and their respective vertices. The primary objective is to deploy a set of guards strictly on these vertices such that every rectangle is covered. A rectangle is considered covered if at least one of its incident vertices possesses a guard. Consequently, the initial problem is to determine a vertex assignment that minimizes the total number of guards required.
 
-Subsequently, an extension to this baseline problem is explored. In practical contexts, guards may represent resources that require differentiation, preventing interference or scheduling conflicts. Therefore, a secondary objective is introduced, which consists of assigning a color to each placed guard such that no rectangle is covered by more than one guard of the same color, while minimizing the total number of colours utilized. This formulation effectively transforms the problem into a multi-objective optimization problem.
+Subsequently, two extensions to the baseline problem are explored. The first introduces a secondary objective consisting of assigning a colour to each placed guard such that no rectangle is covered by more than one guard of the same colour, while minimizing the total number of colours utilized. This formulation transforms the original problem into a multi-objective optimization problem.
+
+The second extension extends each guard's visibility. Instead of covering only the rectangles incident to the vertex where a guard is placed, a guard may additionally cover rectangles located within a maximum graph distance (D) in the rectangle adjacency graph.
 
 The following chapters establish mathematical formulations using Greedy Approaches, Integer Programming, and Constraint Programming. Then, the implementation of these approaches using Google OR-Tools and an independent search method maintaining arc-consistency with AC-3 is described. Finally, the multi-objective extension is formulated and solved using a sequential optimization method. 
 
@@ -60,6 +62,7 @@ The primary objectives of this report are defined as follows:
     \item To implement the proposed mathematical models utilizing the Google OR-Tools suite.
     \item To develop and evaluate a custom search algorithm employing AC-3 for information filtering and backtracking to solve the Constraint Optimization Problem.
     \item To formulate and solve a multi-objective extension of the problem, focusing on the minimization of the colours assigned to the minimum number of guards found in the initial models.
+    \item To extend the original coverage model by introducing a distance-based visibility mechanism, allowing guards to cover rectangles beyond their incident ones, and to formulate the corresponding optimization problem.
 \end{enumerate}
 
 
@@ -184,7 +187,7 @@ input-1-50000 & 19794 & 19874 & 18040 & 18045 & 18045 & 17352 \\
 \frac{\text{GreedySolution} - \text{OptimalSolution}}{\text{OptimalSolution}} \times 100
 \]
 
-\noindent Overall, the experimental results show a clear distinction between the different families of greedy approaches. The first two algorithms, \textbf{Greedy1.cpp} and \textbf{Greedy2.cpp}, produce similar results across all instances, with only minor differences appearing for larger inputs. In contrast, the approaches based on prioritizing “isolated” rectangles (\textbf{Greedy3.cpp}, \textbf{Greedy3v2.cpp}, and \textbf{Greedy4.cpp}) behave in a more consistent manner, both internally and across instances, and generally achieve better performance relative to the first two methods.
+\noindent Overall, the experimental results show a clear distinction between the different families of greedy approaches. The first two algorithms, \textbf{Greedy1.cpp} and \textbf{Greedy2.cpp}, produce similar results across all instances, with only minor differences appearing for larger inputs. In contrast, the approaches based on prioritizing “isolated” rectangles (\textbf{Greedy3.cpp}, \textbf{Greedy3v2.cpp}, and \textbf{Greedy4.c\allowbreak pp}) behave in a more consistent manner, both internally and across instances, and generally achieve better performance relative to the first two methods.
 
 \noindent This shows that shifting the focus from vertex-based heuristics to rectangle-based prioritization has a positive impact on solution quality and that in the second family the heuristic approach doesn't show much of a difference. In particular,
 
@@ -513,6 +516,14 @@ subject to the following constraints:
 
 
 \chapter{Conclusion}
+
+The present report addressed the Rectangle Partition Coverage problem through multiple approaches, namely Greedy Algorithms, Integer Programming, and Constraint Programming. 
+
+The experimental evaluation demonstrated that simple greedy approaches based solely on vertex degree provide reasonably good solutions with very low computational cost. However, it was also demonstrated that these solutions remain noticeably distant from the optimum as instance sizes increase.
+
+In order to obtain optimal solutions, Integer Programming and Constraint Programming formulations were developed. Both models capture the problem naturally through binary decision variables and coverage constraints. The OR-Tools implementations were successful in producing optimal solutions. Furthermore, a Constraint Programming solver was developed based on AC-3 and backtracking techniques. This case study demonstrates the application of consistency methods in the domain of combinatorial optimization problems. 
+
+To conclude, an investigation was conducted into two extensions of the original problem. The introduction of a colouring requirement transformed the problem into a multi-objective optimisation problem. A sequential optimisation strategy was employed, with the minimisation of the number of guards initiated first, followed by the minimisation of the number of colours required, while ensuring the preservation of optimal guard placement. The second extension generalized guard visibility by allowing guards to cover rectangles within a given fixed distance in the rectangle adjacency graph.
 
 % \printbibliography
 
