@@ -1,3 +1,0 @@
-/home/goncalo/Projects/mad_project/src/ex4/IP_a/build/CMakeFiles/main.dir
-/home/goncalo/Projects/mad_project/src/ex4/IP_a/build/CMakeFiles/edit_cache.dir
-/home/goncalo/Projects/mad_project/src/ex4/IP_a/build/CMakeFiles/rebuild_cache.dir
