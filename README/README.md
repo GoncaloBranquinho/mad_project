@@ -97,6 +97,30 @@ After running the script, you will be prompted with the following inputs:
 5. **Preview and / or save instance model** - Option to preview and / or save current instance model to a file. Useful to understand which variables and equations are being taken into consideration.
 6. **Save instance to file** – Option to save the current instance. This is particularly useful when working with a random subset, allowing you to reuse the same selection across different algorithms for comparison. During this process, a file with the name according to the user's input will be added under the `inputs/input-files/` directory to easen the process for step 2.
 
+To execute the CP OR-Tools, go to the corresponding folder, and simply run:
+
+```
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make
+./main "../../../../inputs/input-files/input-3-15"
+```
+
 <br>
 
-Regarding the remaining OR-Tools exercises ...
+## Exercise 4 - Extensions
+
+The folder `src/ex4/` contains the IP OR-Tools and CP OR-Tools algorithms for the coloring extension.
+
+To execute the OR-Tools algorithms, go to the corresponding folder, and simply run:
+
+```
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make
+./main "../../../../inputs/input-files/input-3-15"
+```
