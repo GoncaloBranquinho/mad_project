@@ -12,7 +12,7 @@ else
         printf "$inputFilesPath file doesn't exist\n"
     else
         inputFilesImagesPath="../../inputs/input-files-images/"
-        read -p "Type 'y' to preview input partition image: " inputAnswer
+        read -p "Type 'y' to preview input partition image (any other input otherwise): " inputAnswer
         fullPathToInputFileImage=$inputFilesImagesPath$inputFileName.pdf
 
         if [ "$inputAnswer" == "y" ]; then

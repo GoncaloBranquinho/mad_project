@@ -13,7 +13,7 @@ void printCurrentInstanceNumber(int currentInstance) {
 
 void getOutputFileNameInput(string& fileName, string defaultOutputFileName) {
     bool viableFileName = false;
-    print("\n\tWARNING - The file you choose will have contents appended to it for all instances you decide to save\n");
+    print("\n\t\033[33mWARNING\033[0m - The file you choose will have contents appended to it for all instances you decide to save\n");
 
     while (!viableFileName) {
         print("\tType output file name (\'Enter\' to default to {}, \'c\' to cancel): ", defaultOutputFileName);
@@ -30,7 +30,7 @@ void getOutputFileNameInput(string& fileName, string defaultOutputFileName) {
         }
 
         if (filesystem::exists(pathToFolderContainingFile + fileName)) {
-            print("\n\tWARNING - The file \'{}\' already exists and all contents will be appended to it!\n", fileName);
+            print("\n\t\033[33mWARNING\033[0m - The file \'{}\' already exists and all contents will be appended to it!\n", fileName);
             print("\tType 'y' to proceed (any other input to cancel): ");
 
             string proceed;

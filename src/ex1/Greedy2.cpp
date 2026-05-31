@@ -116,7 +116,7 @@ void solve(std::istream &f) {
     removePoint(queue.top());
     queue.pop();
   }
-  std::cout << std::accumulate(
+  std::cout << "\nMinimum number of guards required: " << std::accumulate(
                    guards.begin(), guards.end(), 0,
                    [](int sum, const auto &p) { return sum + p.second; })
             << '\n';
