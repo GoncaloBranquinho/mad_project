@@ -66,7 +66,7 @@ After running the script, you will be prompted with the following inputs:
 
 The folder `src/ex2/` contains all of our AC-3 IP OR-Tools and CP OR-Tools algorithms. 
 
-To execute the AC3 of them, simply run:
+To execute the AC3 of them, go to the corresponding folder, and simply run:
 
 ```
 ./run-ac3.sh
@@ -78,7 +78,7 @@ The execution should look as follows:
 
 After running the script, you will  only be prompted with the input file name.
 
-To execute the IP_ORTools, simply run:
+To execute the IP_ORTools, go to the corresponding folder, and simply run:
 
 ```
 ./build.sh 
@@ -100,12 +100,8 @@ After running the script, you will be prompted with the following inputs:
 To execute the CP OR-Tools, go to the corresponding folder, and simply run:
 
 ```
-rm -rf build
-mkdir build
-cd build
-cmake ..
-make
-./main "../../../../inputs/input-files/input-3-15"
+./build.sh 
+./run-cp-ortools.sh
 ```
 
 <br>
@@ -117,10 +113,7 @@ The folder `src/ex4/` contains the IP OR-Tools and CP OR-Tools algorithms for th
 To execute the OR-Tools algorithms, go to the corresponding folder, and simply run:
 
 ```
-rm -rf build
-mkdir build
-cd build
-cmake ..
-make
-./main "../../../../inputs/input-files/input-3-15"
+./build.sh 
+./run-ip-ortools.sh // in the ip folder
+./run-cp-ortools.sh // in the cp folder
 ```
