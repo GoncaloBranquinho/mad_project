@@ -7,7 +7,7 @@ read -p "Type file name (no extension please, i.e, .txt, .tex etc): " fileName
 inputFilePath=$inputFilesPath$fileName
 inputFilesImagePath=$inputFilesImagesPath$fileName
 
-gcc InstancesGenerator.c -o InstancesGenerator
+gcc InstancesGenerator.c -o InstancesGenerator -lm
 ./InstancesGenerator $inputFilePath $inputFilesImagePath.tex
 pdflatex -output-directory=$inputFilesImagesPath $inputFilesImagePath.tex
 
