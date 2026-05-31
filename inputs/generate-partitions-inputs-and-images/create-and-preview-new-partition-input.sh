@@ -16,7 +16,7 @@ rm $inputFilesImagePath.aux
 rm $inputFilesImagePath.log
 rm $inputFilesImagePath.tex
 
-read -p "Type 'y' to preview generated partition: " inputAnswer
+read -p "Type 'y' to preview generated partition (any other input otherwise): " inputAnswer
 
 if [ "$inputAnswer" == "y" ]; then 
     open -a Preview $inputFilesImagePath.pdf 

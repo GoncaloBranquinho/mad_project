@@ -1,4 +1,4 @@
-inputFilesPath="../../inputs/input-files/"
+inputFilesPath="../../../inputs/input-files/"
 read -p "Type input file name (from $inputFilesPath): " inputFileName
 fullPathToInputFile=$inputFilesPath$inputFileName
 
